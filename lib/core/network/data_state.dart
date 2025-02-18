@@ -4,16 +4,21 @@ import 'dart:io';
 import 'package:absen_smkn1_punggelan/core/network/base_response.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:dio/dio.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'data_state.g.dart';
+
+@JsonSerializable(genericArgumentFactories: true)
 class DataState<T> extends BaseResponse {
   final T? data;
   DataState({required super.success, required super.message, this.data});
 
-  factory DataState.fromJson(Map<String, dynamic> json) {
-    return DataState(
-        success: json['success'],
-        message: json['message'] ?? '',
-        data: json['data']);
+  factory DataState.fromJson(Map<String, dynamic> json, T Function(Object? json) fromJsonT) {
+    return _$DataStateFromJson(json, fromJsonT);
+  }
+
+  Map<String, dynamic> toJson(Object? Function(T? value) toJsonT) {
+    return _$DataStateToJson(this, toJsonT);
   }
 }
 
@@ -25,39 +30,34 @@ class SuccessState<T> extends DataState<T> {
 class ErrorState<T> extends DataState<T> {
   ErrorState({required String message})
       : super(success: false, message: message);
-  factory ErrorState.fromJson(Map<String, dynamic> json) {
-    return ErrorState(message: json['message']);
-  }
 }
 
 Future<DataState<T>> handleResponse<T>(
-    Future<HttpResponse<DataState>> Function() apiCall,
+    Future<HttpResponse<Map<String, dynamic>>> Function() apiCall,
     T Function(dynamic) mapDataSuccess) async {
   try {
-    final HttpResponse<DataState> httpResponse = await apiCall();
+    final httpResponse = await apiCall();
     if (httpResponse.response.statusCode == HttpStatus.ok) {
       final response = httpResponse.data;
-      if (response.success) {
+      if (response['success'] == true) {
         return SuccessState(
-            message: response.message, data: mapDataSuccess(response.data));
+            data: mapDataSuccess(response['data']),
+            message: response['message'] ?? 'Success');
       } else {
-        return ErrorState(message: response.message);
+        return ErrorState(message: response['message'] ?? 'Unknown error');
       }
     } else {
-      throw DioException(
-          response: httpResponse.response,
-          requestOptions: httpResponse.response.requestOptions);
-    }
-  } on DioException catch (e) {
-    try {
-      final response = ErrorState.fromJson(jsonDecode(e.response.toString()));
-      return ErrorState(
-          message: '${e.response?.statusCode ?? ''} ${response.message}');
-    } catch (e1) {
       return ErrorState(
           message:
-              '${e.response?.statusCode ?? HttpStatus.badRequest} ${e.error ?? e}');
+              '${httpResponse.response.statusCode} : ${httpResponse.response.statusMessage}');
     }
+  } on DioException catch (e) {
+    if (e.response?.data != null &&
+        e.response?.data is Map<String, dynamic> &&
+        e.response?.data['message'] != null) {
+      return ErrorState(message: e.response?.data['message']);
+    }
+    return ErrorState(message: e.message ?? 'Unknown error');
   } catch (e) {
     return ErrorState(message: e.toString());
   }

@@ -1,6 +1,4 @@
 import 'package:absen_smkn1_punggelan/core/constant/constant.dart';
-import 'package:absen_smkn1_punggelan/core/network/data_state.dart';
-import 'package:retrofit/http.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -12,11 +10,21 @@ abstract class PhotoApiService {
     return _PhotoApiService(dio);
   }
 
-  @GET('/api/get-photo')
-  Future<HttpResponse<DataState>> get();
+  @POST('/api/photo/upload')
+  Future<Map<String, dynamic>> uploadPhoto({
+    @Part() required String type,
+    @Part() required String photo,
+  });
 
-  @GET('{path}')
-  @DioResponseType(ResponseType.bytes)
-  Future<HttpResponse<List<int>>> getBytes(
-      {@Path('path') required String path});
+  @GET('/api/photo/list')
+  Future<Map<String, dynamic>> getPhotoList();
+
+  @GET('/api/photo/detail/{id}')
+  Future<Map<String, dynamic>> getPhotoDetail(@Path() int id);
+
+  @DELETE('/api/photo/delete/{id}')
+  Future<Map<String, dynamic>> deletePhoto(@Path() int id);
+
+  @GET('/api/photo/bytes/{id}')
+  Future<Map<String, dynamic>> getPhotoBytes(@Path() int id);
 }

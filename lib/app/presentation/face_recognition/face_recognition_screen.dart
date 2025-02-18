@@ -76,5 +76,12 @@ class FaceRecognitionScreen
 
   _onPressOpenCamera() {
     notifier.getCurrentPhoto();
+    notifier.currentImage?.then((value) {
+      if (value != null) {
+        notifier.getPhotoBytes(value.id);
+      } else {
+        // Handle the case where there is no current image
+      }
+    });
   }
 }

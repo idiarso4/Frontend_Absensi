@@ -1,5 +1,4 @@
 import 'package:absen_smkn1_punggelan/core/constant/constant.dart';
-import 'package:absen_smkn1_punggelan/core/network/data_state.dart';
 import 'package:retrofit/http.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:dio/dio.dart';
@@ -13,6 +12,19 @@ abstract class AuthApiService {
   }
 
   @POST('/api/login')
-  Future<HttpResponse<DataState>> login(
+  Future<Map<String, dynamic>> login(
       {@Body() required Map<String, dynamic> body});
+
+  @GET('/api/profile')
+  Future<Map<String, dynamic>> getProfile();
+
+  @GET('/api/profile/check-update-permission')
+  Future<Map<String, dynamic>> checkProfileUpdatePermission();
+
+  @POST('/api/profile/update')
+  Future<Map<String, dynamic>> updateProfile(
+      {@Body() required Map<String, dynamic> body});
+
+  @POST('/api/logout')
+  Future<void> logout();
 }

@@ -5,8 +5,11 @@ import 'package:absen_smkn1_punggelan/core/widget/loading_app_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:absen_smkn1_punggelan/core/helper/notification_helper.dart';
+import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:absen_smkn1_punggelan/app/presentation/profile/profile_notifier.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/home/home_notifier.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/login/login_notifier.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,14 +26,20 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ProfileNotifier()),
+        ChangeNotifierProvider(
+          create: (_) => sl<ProfileNotifier>(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => sl<HomeNotifier>(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => sl<LoginNotifier>(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.red),
-        home: Scaffold(
-          body: LoginScreen(),
-        ),
+        home: const LoginScreen(),
       ),
     );
   }
