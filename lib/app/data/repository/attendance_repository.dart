@@ -1,8 +1,8 @@
-import 'package:skansapung_presensi/app/data/model/attendance.dart';
-import 'package:skansapung_presensi/app/data/source/attendance_api_service.dart';
-import 'package:skansapung_presensi/app/module/entity/attendance.dart';
-import 'package:skansapung_presensi/app/module/repository/attendance_repository.dart';
-import 'package:skansapung_presensi/core/network/data_state.dart';
+import 'package:absen_smkn1_punggelan/app/data/model/attendance.dart';
+import 'package:absen_smkn1_punggelan/app/data/source/attendance_api_service.dart';
+import 'package:absen_smkn1_punggelan/app/module/entity/attendance.dart';
+import 'package:absen_smkn1_punggelan/app/module/repository/attendance_repository.dart';
+import 'package:absen_smkn1_punggelan/core/network/data_state.dart';
 
 class AttendanceRepositoryImpl extends AttendanceRepository {
   final AttendanceApiService _attendanceApiService;

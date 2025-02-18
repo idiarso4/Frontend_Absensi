@@ -1,7 +1,7 @@
-import 'package:skansapung_presensi/app/presentation/home/home_screen.dart';
-import 'package:skansapung_presensi/app/presentation/login/login_notifier.dart';
-import 'package:skansapung_presensi/core/helper/global_helper.dart';
-import 'package:skansapung_presensi/core/widget/app_widget.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/home/home_screen.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/login/login_notifier.dart';
+import 'package:absen_smkn1_punggelan/core/helper/global_helper.dart';
+import 'package:absen_smkn1_punggelan/core/widget/app_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 

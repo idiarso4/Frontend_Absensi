@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:skansapung_presensi/core/network/base_response.dart';
+import 'package:absen_smkn1_punggelan/core/network/base_response.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:dio/dio.dart';
 

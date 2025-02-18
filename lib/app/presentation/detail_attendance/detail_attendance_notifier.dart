@@ -1,6 +1,6 @@
-import 'package:skansapung_presensi/app/module/entity/attendance.dart';
-import 'package:skansapung_presensi/app/module/use_case/attendance_get_by_month_year.dart';
-import 'package:skansapung_presensi/core/provider/app_provider.dart';
+import 'package:absen_smkn1_punggelan/app/module/entity/attendance.dart';
+import 'package:absen_smkn1_punggelan/app/module/use_case/attendance_get_by_month_year.dart';
+import 'package:absen_smkn1_punggelan/core/provider/app_provider.dart';
 import 'package:flutter/material.dart';
 
 class DetailAttendanceNotifier extends AppProvider {

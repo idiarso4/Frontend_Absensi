@@ -1,10 +1,10 @@
-import 'package:skansapung_presensi/app/data/model/auth.dart';
-import 'package:skansapung_presensi/app/data/source/auth_api_service.dart';
-import 'package:skansapung_presensi/app/module/entity/auth.dart';
-import 'package:skansapung_presensi/app/module/repository/auth_repository.dart';
-import 'package:skansapung_presensi/core/constant/constant.dart';
-import 'package:skansapung_presensi/core/helper/shared_preferences_helper.dart';
-import 'package:skansapung_presensi/core/network/data_state.dart';
+import 'package:absen_smkn1_punggelan/app/data/model/auth.dart';
+import 'package:absen_smkn1_punggelan/app/data/source/auth_api_service.dart';
+import 'package:absen_smkn1_punggelan/app/module/entity/auth.dart';
+import 'package:absen_smkn1_punggelan/app/module/repository/auth_repository.dart';
+import 'package:absen_smkn1_punggelan/core/constant/constant.dart';
+import 'package:absen_smkn1_punggelan/core/helper/shared_preferences_helper.dart';
+import 'package:absen_smkn1_punggelan/core/network/data_state.dart';
 
 class AuthRepositoryImpl extends AuthRepository {
   final AuthApiService _authApiService;

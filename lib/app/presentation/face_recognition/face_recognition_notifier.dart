@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:skansapung_presensi/app/module/use_case/photo_get_bytes.dart';
-import 'package:skansapung_presensi/core/provider/app_provider.dart';
+import 'package:absen_smkn1_punggelan/app/module/use_case/photo_get_bytes.dart';
+import 'package:absen_smkn1_punggelan/core/provider/app_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_face_api/flutter_face_api.dart';
 

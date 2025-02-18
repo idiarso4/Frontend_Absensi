@@ -1,5 +1,5 @@
-import 'package:skansapung_presensi/app/module/entity/schedule.dart';
-import 'package:skansapung_presensi/core/network/data_state.dart';
+import 'package:absen_smkn1_punggelan/app/module/entity/schedule.dart';
+import 'package:absen_smkn1_punggelan/core/network/data_state.dart';
 
 abstract class ScheduleRepository {
   Future<DataState<ScheduleEntity?>> get();

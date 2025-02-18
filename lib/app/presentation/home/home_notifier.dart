@@ -1,17 +1,17 @@
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:skansapung_presensi/app/module/entity/attendance.dart';
-import 'package:skansapung_presensi/app/module/entity/schedule.dart';
-import 'package:skansapung_presensi/app/module/use_case/attendance_get_this_month.dart';
-import 'package:skansapung_presensi/app/module/use_case/attendance_get_today.dart';
-import 'package:skansapung_presensi/app/module/use_case/schedule_banned.dart';
-import 'package:skansapung_presensi/app/module/use_case/schedule_get.dart';
-import 'package:skansapung_presensi/core/constant/constant.dart';
-import 'package:skansapung_presensi/core/helper/date_time_helper.dart';
-import 'package:skansapung_presensi/core/helper/notification_helper.dart';
-import 'package:skansapung_presensi/core/helper/shared_preferences_helper.dart';
-import 'package:skansapung_presensi/core/provider/app_provider.dart';
+import 'package:absen_smkn1_punggelan/app/module/entity/attendance.dart';
+import 'package:absen_smkn1_punggelan/app/module/entity/schedule.dart';
+import 'package:absen_smkn1_punggelan/app/module/use_case/attendance_get_this_month.dart';
+import 'package:absen_smkn1_punggelan/app/module/use_case/attendance_get_today.dart';
+import 'package:absen_smkn1_punggelan/app/module/use_case/schedule_banned.dart';
+import 'package:absen_smkn1_punggelan/app/module/use_case/schedule_get.dart';
+import 'package:absen_smkn1_punggelan/core/constant/constant.dart';
+import 'package:absen_smkn1_punggelan/core/helper/date_time_helper.dart';
+import 'package:absen_smkn1_punggelan/core/helper/notification_helper.dart';
+import 'package:absen_smkn1_punggelan/core/helper/shared_preferences_helper.dart';
+import 'package:absen_smkn1_punggelan/core/provider/app_provider.dart';
 import 'package:flutter/material.dart';
 
 class HomeNotifier extends AppProvider {

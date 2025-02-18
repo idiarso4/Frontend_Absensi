@@ -1,8 +1,8 @@
-import 'package:skansapung_presensi/core/di/dependency.dart';
-import 'package:skansapung_presensi/core/helper/dialog_helper.dart';
-import 'package:skansapung_presensi/core/provider/app_provider.dart';
-import 'package:skansapung_presensi/core/widget/error_app_widget.dart';
-import 'package:skansapung_presensi/core/widget/loading_app_widget.dart';
+import 'package:absen_smkn1_punggelan/core/di/dependency.dart';
+import 'package:absen_smkn1_punggelan/core/helper/dialog_helper.dart';
+import 'package:absen_smkn1_punggelan/core/provider/app_provider.dart';
+import 'package:absen_smkn1_punggelan/core/widget/error_app_widget.dart';
+import 'package:absen_smkn1_punggelan/core/widget/loading_app_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';

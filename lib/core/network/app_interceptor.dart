@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:skansapung_presensi/core/constant/constant.dart';
-import 'package:skansapung_presensi/core/helper/shared_preferences_helper.dart';
+import 'package:absen_smkn1_punggelan/core/constant/constant.dart';
+import 'package:absen_smkn1_punggelan/core/helper/shared_preferences_helper.dart';
 import 'package:dio/dio.dart';
 
 class AppInterceptor extends Interceptor {

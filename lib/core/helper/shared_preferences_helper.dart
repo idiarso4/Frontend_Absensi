@@ -25,4 +25,29 @@ class SharedPreferencesHelper {
     final pref = await SharedPreferences.getInstance();
     return pref.clear();
   }
+
+  static Future<String?> getRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('role');
+  }
+
+  static Future<String?> getEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('email');
+  }
+
+  static Future<String?> getPhone() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('phone');
+  }
+
+  static Future<String?> getNip() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('nip');
+  }
+
+  static Future<String?> getAddress() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('address');
+  }
 }

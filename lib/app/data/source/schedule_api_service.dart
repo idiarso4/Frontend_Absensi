@@ -1,5 +1,5 @@
-import 'package:skansapung_presensi/core/constant/constant.dart';
-import 'package:skansapung_presensi/core/network/data_state.dart';
+import 'package:absen_smkn1_punggelan/core/constant/constant.dart';
+import 'package:absen_smkn1_punggelan/core/network/data_state.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:dio/dio.dart';
 

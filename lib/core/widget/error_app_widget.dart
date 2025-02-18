@@ -1,4 +1,4 @@
-import 'package:skansapung_presensi/core/helper/global_helper.dart';
+import 'package:absen_smkn1_punggelan/core/helper/global_helper.dart';
 import 'package:flutter/material.dart';
 
 class ErrorAppWidget extends StatelessWidget {

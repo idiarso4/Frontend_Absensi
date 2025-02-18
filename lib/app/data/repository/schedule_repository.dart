@@ -1,9 +1,9 @@
-import 'package:skansapung_presensi/app/data/source/schedule_api_service.dart';
-import 'package:skansapung_presensi/app/module/entity/schedule.dart';
-import 'package:skansapung_presensi/app/module/repository/schedule_repository.dart';
-import 'package:skansapung_presensi/core/constant/constant.dart';
-import 'package:skansapung_presensi/core/helper/shared_preferences_helper.dart';
-import 'package:skansapung_presensi/core/network/data_state.dart';
+import 'package:absen_smkn1_punggelan/app/data/source/schedule_api_service.dart';
+import 'package:absen_smkn1_punggelan/app/module/entity/schedule.dart';
+import 'package:absen_smkn1_punggelan/app/module/repository/schedule_repository.dart';
+import 'package:absen_smkn1_punggelan/core/constant/constant.dart';
+import 'package:absen_smkn1_punggelan/core/helper/shared_preferences_helper.dart';
+import 'package:absen_smkn1_punggelan/core/network/data_state.dart';
 
 class ScheduleRepositoryImpl extends ScheduleRepository {
   final ScheduleApiService _scheduleApiService;

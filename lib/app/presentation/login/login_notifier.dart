@@ -1,8 +1,8 @@
-import 'package:skansapung_presensi/app/module/entity/auth.dart';
-import 'package:skansapung_presensi/app/module/use_case/auth_login.dart';
-import 'package:skansapung_presensi/core/constant/constant.dart';
-import 'package:skansapung_presensi/core/helper/shared_preferences_helper.dart';
-import 'package:skansapung_presensi/core/provider/app_provider.dart';
+import 'package:absen_smkn1_punggelan/app/module/entity/auth.dart';
+import 'package:absen_smkn1_punggelan/app/module/use_case/auth_login.dart';
+import 'package:absen_smkn1_punggelan/core/constant/constant.dart';
+import 'package:absen_smkn1_punggelan/core/helper/shared_preferences_helper.dart';
+import 'package:absen_smkn1_punggelan/core/provider/app_provider.dart';
 import 'package:flutter/material.dart';
 
 class LoginNotifier extends AppProvider {
@@ -45,6 +45,19 @@ class LoginNotifier extends AppProvider {
         email: _emailController.text, password: _passwordController.text);
     final response = await _authLoginUseCase(param: param);
     if (response.success) {
+      // Save auth token
+      await SharedPreferencesHelper.setString(PREF_AUTH, response.data.token);
+      
+      // Save user data
+      await SharedPreferencesHelper.setString('name', response.data.name);
+      await SharedPreferencesHelper.setString('email', response.data.email);
+      await SharedPreferencesHelper.setString('role', response.data.role);
+      await SharedPreferencesHelper.setString('phone', response.data.phone ?? '-');
+      await SharedPreferencesHelper.setString('nip', response.data.nip ?? '-');
+      await SharedPreferencesHelper.setString('address', response.data.address ?? '-');
+      await SharedPreferencesHelper.setString('profile_picture', response.data.profilePicture ?? '');
+      
+      _isLoged = true;
     } else {
       snackbarMessage = response.message;
     }

@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:skansapung_presensi/app/data/source/photo_api_service.dart';
-import 'package:skansapung_presensi/app/module/repository/photo_repository.dart';
-import 'package:skansapung_presensi/core/constant/constant.dart';
-import 'package:skansapung_presensi/core/network/data_state.dart';
+import 'package:absen_smkn1_punggelan/app/data/source/photo_api_service.dart';
+import 'package:absen_smkn1_punggelan/app/module/repository/photo_repository.dart';
+import 'package:absen_smkn1_punggelan/core/constant/constant.dart';
+import 'package:absen_smkn1_punggelan/core/network/data_state.dart';
 
 class PhotoRepositoryImpl extends PhotoRepository {
   final PhotoApiService _photoApiService;

@@ -1,4 +1,4 @@
-import 'package:skansapung_presensi/app/module/entity/attendance.dart';
+import 'package:absen_smkn1_punggelan/app/module/entity/attendance.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'attendance.g.dart';

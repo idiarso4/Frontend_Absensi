@@ -1,4 +1,4 @@
-import 'package:skansapung_presensi/core/helper/dialog_helper.dart';
+import 'package:absen_smkn1_punggelan/core/helper/dialog_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:geolocator/geolocator.dart';

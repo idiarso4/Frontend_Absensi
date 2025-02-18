@@ -1,8 +1,8 @@
-import 'package:skansapung_presensi/app/module/entity/attendance.dart';
-import 'package:skansapung_presensi/app/presentation/detail_attendance/detail_attendance_notifier.dart';
-import 'package:skansapung_presensi/core/helper/date_time_helper.dart';
-import 'package:skansapung_presensi/core/helper/global_helper.dart';
-import 'package:skansapung_presensi/core/widget/app_widget.dart';
+import 'package:absen_smkn1_punggelan/app/module/entity/attendance.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/detail_attendance/detail_attendance_notifier.dart';
+import 'package:absen_smkn1_punggelan/core/helper/date_time_helper.dart';
+import 'package:absen_smkn1_punggelan/core/helper/global_helper.dart';
+import 'package:absen_smkn1_punggelan/core/widget/app_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/material/app_bar.dart';
 import 'package:flutter/src/widgets/framework.dart';

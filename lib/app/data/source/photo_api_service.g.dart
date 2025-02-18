@@ -13,7 +13,7 @@ class _PhotoApiService implements PhotoApiService {
     this._dio, {
     this.baseUrl,
   }) {
-    baseUrl ??= 'https://presensi.sijasmkn1punggelan.org';
+    baseUrl ??= 'https://app.sijasmkn1punggelan.org';
   }
 
   final Dio _dio;

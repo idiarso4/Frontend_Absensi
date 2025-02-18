@@ -1,29 +1,30 @@
-import 'package:skansapung_presensi/app/data/repository/attendance_repository.dart';
-import 'package:skansapung_presensi/app/data/repository/auth_repository.dart';
-import 'package:skansapung_presensi/app/data/repository/photo_repository.dart';
-import 'package:skansapung_presensi/app/data/repository/schedule_repository.dart';
-import 'package:skansapung_presensi/app/data/source/attendance_api_service.dart';
-import 'package:skansapung_presensi/app/data/source/auth_api_service.dart';
-import 'package:skansapung_presensi/app/data/source/photo_api_service.dart';
-import 'package:skansapung_presensi/app/data/source/schedule_api_service.dart';
-import 'package:skansapung_presensi/app/module/repository/attendance_repository.dart';
-import 'package:skansapung_presensi/app/module/repository/auth_repository.dart';
-import 'package:skansapung_presensi/app/module/repository/photo_repository.dart';
-import 'package:skansapung_presensi/app/module/repository/schedule_repository.dart';
-import 'package:skansapung_presensi/app/module/use_case/attendance_get_by_month_year.dart';
-import 'package:skansapung_presensi/app/module/use_case/attendance_get_this_month.dart';
-import 'package:skansapung_presensi/app/module/use_case/attendance_get_today.dart';
-import 'package:skansapung_presensi/app/module/use_case/attendance_send.dart';
-import 'package:skansapung_presensi/app/module/use_case/auth_login.dart';
-import 'package:skansapung_presensi/app/module/use_case/photo_get_bytes.dart';
-import 'package:skansapung_presensi/app/module/use_case/schedule_banned.dart';
-import 'package:skansapung_presensi/app/module/use_case/schedule_get.dart';
-import 'package:skansapung_presensi/app/presentation/detail_attendance/detail_attendance_notifier.dart';
-import 'package:skansapung_presensi/app/presentation/face_recognition/face_recognition_notifier.dart';
-import 'package:skansapung_presensi/app/presentation/home/home_notifier.dart';
-import 'package:skansapung_presensi/app/presentation/login/login_notifier.dart';
-import 'package:skansapung_presensi/app/presentation/map/map_notifier.dart';
-import 'package:skansapung_presensi/core/network/app_interceptor.dart';
+import 'package:absen_smkn1_punggelan/app/data/repository/attendance_repository.dart';
+import 'package:absen_smkn1_punggelan/app/data/repository/auth_repository.dart';
+import 'package:absen_smkn1_punggelan/app/data/repository/photo_repository.dart';
+import 'package:absen_smkn1_punggelan/app/data/repository/schedule_repository.dart';
+import 'package:absen_smkn1_punggelan/app/data/source/attendance_api_service.dart';
+import 'package:absen_smkn1_punggelan/app/data/source/auth_api_service.dart';
+import 'package:absen_smkn1_punggelan/app/data/source/photo_api_service.dart';
+import 'package:absen_smkn1_punggelan/app/data/source/schedule_api_service.dart';
+import 'package:absen_smkn1_punggelan/app/module/repository/attendance_repository.dart';
+import 'package:absen_smkn1_punggelan/app/module/repository/auth_repository.dart';
+import 'package:absen_smkn1_punggelan/app/module/repository/photo_repository.dart';
+import 'package:absen_smkn1_punggelan/app/module/repository/schedule_repository.dart';
+import 'package:absen_smkn1_punggelan/app/module/use_case/attendance_get_by_month_year.dart';
+import 'package:absen_smkn1_punggelan/app/module/use_case/attendance_get_this_month.dart';
+import 'package:absen_smkn1_punggelan/app/module/use_case/attendance_get_today.dart';
+import 'package:absen_smkn1_punggelan/app/module/use_case/attendance_send.dart';
+import 'package:absen_smkn1_punggelan/app/module/use_case/auth_login.dart';
+import 'package:absen_smkn1_punggelan/app/module/use_case/photo_get_bytes.dart';
+import 'package:absen_smkn1_punggelan/app/module/use_case/schedule_banned.dart';
+import 'package:absen_smkn1_punggelan/app/module/use_case/schedule_get.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/detail_attendance/detail_attendance_notifier.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/face_recognition/face_recognition_notifier.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/home/home_notifier.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/login/login_notifier.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/map/map_notifier.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/profile/profile_notifier.dart';
+import 'package:absen_smkn1_punggelan/core/network/app_interceptor.dart';
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
@@ -81,5 +82,8 @@ Future<void> initDependency() async {
       (param1, param2) => DetailAttendanceNotifier(sl()));
   sl.registerFactoryParam<FaceRecognitionNotifier, void, void>(
     (param1, param2) => FaceRecognitionNotifier(sl()),
+  );
+  sl.registerFactoryParam<ProfileNotifier, void, void>(
+    (param1, param2) => ProfileNotifier(),
   );
 }

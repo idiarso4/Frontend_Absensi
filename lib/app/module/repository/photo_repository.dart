@@ -1,4 +1,4 @@
-import 'package:skansapung_presensi/core/network/data_state.dart';
+import 'package:absen_smkn1_punggelan/core/network/data_state.dart';
 
 abstract class PhotoRepository {
   Future<DataState<String>> get();

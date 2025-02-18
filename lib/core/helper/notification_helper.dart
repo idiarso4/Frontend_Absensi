@@ -48,7 +48,7 @@ class NotificationHelper {
         body,
         convertTime(now.year, now.month, now.day, hour, minutes),
         NotificationDetails(
-            android: AndroidNotificationDetails('1', 'skansapung_presensi',
+            android: AndroidNotificationDetails('1', 'absen_smkn1_punggelan',
                 importance: Importance.max, priority: Priority.high),
             iOS: DarwinNotificationDetails()),
         uiLocalNotificationDateInterpretation:
