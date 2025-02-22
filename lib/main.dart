@@ -13,6 +13,7 @@ import 'package:skansapung_presensi/core/widget/loading_app_widget.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:skansapung_presensi/core/helper/notification_helper.dart';
 import 'package:skansapung_presensi/app/presentation/leave/leave_notifier.dart';
+import 'package:skansapung_presensi/app/module/notifier/auth_notifier.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => AuthNotifier()),
         ChangeNotifierProvider(create: (_) => sl<LoginNotifier>()),
         ChangeNotifierProvider(create: (_) => DashboardNotifier()),
         ChangeNotifierProvider(create: (_) => AttendanceNotifier()),

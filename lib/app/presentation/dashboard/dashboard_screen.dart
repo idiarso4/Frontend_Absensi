@@ -7,22 +7,29 @@ class DashboardScreen extends BaseScreen<DashboardNotifier> {
 
   @override
   Widget buildScreenContent(BuildContext context, DashboardNotifier notifier) {
-    return RefreshIndicator(
-      onRefresh: () => notifier.loadDashboardData(),
-      child: SingleChildScrollView(
-        physics: AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildWelcomeCard(),
-            SizedBox(height: 20),
-            _buildStatisticsGrid(notifier),
-            SizedBox(height: 20),
-            _buildRecentActivities(notifier),
-          ],
-        ),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return RefreshIndicator(
+          onRefresh: () => notifier.loadDashboardData(),
+          child: SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.all(16.0),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildWelcomeCard(),
+                  SizedBox(height: 20),
+                  _buildStatisticsGrid(notifier),
+                  SizedBox(height: 20),
+                  _buildRecentActivities(notifier),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -34,6 +41,7 @@ class DashboardScreen extends BaseScreen<DashboardNotifier> {
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               'Selamat Datang!',
@@ -63,6 +71,7 @@ class DashboardScreen extends BaseScreen<DashboardNotifier> {
       mainAxisSpacing: 16.0,
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
+      childAspectRatio: 1.2,
       children: [
         _buildStatCard(
           'Kehadiran',
@@ -97,11 +106,12 @@ class DashboardScreen extends BaseScreen<DashboardNotifier> {
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(12.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 32, color: color),
+            Icon(icon, size: 28, color: color),
             SizedBox(height: 8),
             Text(
               title,
@@ -115,7 +125,7 @@ class DashboardScreen extends BaseScreen<DashboardNotifier> {
             Text(
               value,
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
@@ -135,6 +145,7 @@ class DashboardScreen extends BaseScreen<DashboardNotifier> {
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               'Aktivitas Terkini',
@@ -151,22 +162,21 @@ class DashboardScreen extends BaseScreen<DashboardNotifier> {
                 child: Text(
                   notifier.errorMessage,
                   style: TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
                 ),
               )
             else
               ListView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
-                itemCount: notifier.dashboardData['recentActivities']?.length ?? 0,
+                itemCount: notifier.recentActivities.length,
                 itemBuilder: (context, index) {
-                  final activity = notifier.dashboardData['recentActivities'][index];
+                  final activity = notifier.recentActivities[index];
                   return ListTile(
-                    leading: Icon(
-                      _getActivityIcon(activity['type']),
-                      color: _getActivityColor(activity['type']),
-                    ),
-                    title: Text(activity['description']),
-                    subtitle: Text(activity['time']),
+                    leading: Icon(Icons.access_time),
+                    title: Text(activity.title),
+                    subtitle: Text(activity.description),
+                    trailing: Text(activity.time),
                   );
                 },
               ),
