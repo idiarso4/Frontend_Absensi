@@ -13,62 +13,17 @@ class AttendanceNotifier extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
   File? get selectedImage => _selectedImage;
-  Position? get currentPosition => _currentPosition;
-  bool get isWithinRange => _isWithinRange;
+  String? _attendanceStatus;
+  String? get attendanceStatus => _attendanceStatus;
 
-  Future<void> checkLocation() async {
-    _isLoading = true;
-    _errorMessage = '';
-    notifyListeners();
-
-    try {
-      // Check if location service is enabled
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        _errorMessage = 'Location services are disabled.';
-        return;
-      }
-
-      // Check location permission
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          _errorMessage = 'Location permissions are denied.';
-          return;
-        }
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        _errorMessage = 'Location permissions are permanently denied.';
-        return;
-      }
-
-      // Get current position
-      _currentPosition = await Geolocator.getCurrentPosition();
-      
-      // TODO: Check if within range of school
-      // For now, just simulate the check
-      _isWithinRange = true;
-
-    } catch (e) {
-      _errorMessage = 'Failed to get location: ${e.toString()}';
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
+  Position? get currentLocation => _currentPosition;
 
   Future<void> takePhoto() async {
-    final ImagePicker picker = ImagePicker();
     try {
-      final XFile? photo = await picker.pickImage(
-        source: ImageSource.camera,
-        preferredCameraDevice: CameraDevice.front,
-      );
-      
-      if (photo != null) {
-        _selectedImage = File(photo.path);
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.camera);
+      if (image != null) {
+        _selectedImage = File(image.path);
         notifyListeners();
       }
     } catch (e) {
@@ -77,9 +32,19 @@ class AttendanceNotifier extends ChangeNotifier {
     }
   }
 
-  Future<void> submitAttendance() async {
-    if (_selectedImage == null || _currentPosition == null) {
-      _errorMessage = 'Please take a photo and enable location';
+  Future<void> getCurrentLocation() async {
+    await checkLocation();
+  }
+
+  Future<void> submitAttendance(BuildContext context) async {
+    if (_selectedImage == null) {
+      _errorMessage = 'Please take a photo first';
+      notifyListeners();
+      return;
+    }
+
+    if (_currentPosition == null) {
+      _errorMessage = 'Please enable location services';
       notifyListeners();
       return;
     }
@@ -88,17 +53,46 @@ class AttendanceNotifier extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // TODO: Implement API call to submit attendance
-      await Future.delayed(Duration(seconds: 2)); // Simulate API call
-      
-      // Clear data after successful submission
-      _selectedImage = null;
-      _errorMessage = '';
+      // TODO: Implement attendance submission logic
+      _attendanceStatus = 'Submitted';
     } catch (e) {
-      _errorMessage = 'Failed to submit attendance: ${e.toString()}';
+      _errorMessage = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
+  }
 
-    _isLoading = false;
-    notifyListeners();
+  Future<void> checkLocation() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        _errorMessage = 'Location services are disabled';
+        notifyListeners();
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          _errorMessage = 'Location permissions are denied';
+          notifyListeners();
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        _errorMessage = 'Location permissions are permanently denied';
+        notifyListeners();
+        return;
+      }
+
+      _currentPosition = await Geolocator.getCurrentPosition();
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Error getting location: ${e.toString()}';
+      notifyListeners();
+    }
   }
 }

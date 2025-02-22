@@ -3,28 +3,28 @@ import 'package:skansapung_presensi/app/presentation/attendance/attendance_notif
 import 'package:skansapung_presensi/app/presentation/widgets/base_screen.dart';
 
 class AttendanceScreen extends BaseScreen<AttendanceNotifier> {
-  AttendanceScreen() : super(title: 'Absensi');
+  const AttendanceScreen({Key? key}) : super(title: 'Absensi', key: key);
 
   @override
-  Widget buildScreenContent(BuildContext context) {
+  Widget buildScreenContent(BuildContext context, AttendanceNotifier notifier) {
     return Padding(
-      padding: EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildStatusCard(),
-          SizedBox(height: 20),
-          _buildPhotoSection(),
-          SizedBox(height: 20),
-          _buildLocationSection(),
-          SizedBox(height: 20),
-          _buildSubmitButton(context),
+          _buildStatusCard(notifier),
+          const SizedBox(height: 20),
+          _buildPhotoSection(notifier),
+          const SizedBox(height: 20),
+          _buildLocationSection(notifier),
+          const SizedBox(height: 20),
+          _buildSubmitButton(context, notifier),
         ],
       ),
     );
   }
 
-  Widget _buildStatusCard() {
+  Widget _buildStatusCard(AttendanceNotifier notifier) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -41,10 +41,10 @@ class AttendanceScreen extends BaseScreen<AttendanceNotifier> {
             ),
             SizedBox(height: 8),
             Text(
-              'Belum Absen',
+              notifier.attendanceStatus ?? 'Belum Absen',
               style: TextStyle(
                 fontSize: 24,
-                color: Colors.red,
+                color: notifier.attendanceStatus == null ? Colors.red : Colors.green,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -54,7 +54,7 @@ class AttendanceScreen extends BaseScreen<AttendanceNotifier> {
     );
   }
 
-  Widget _buildPhotoSection() {
+  Widget _buildPhotoSection(AttendanceNotifier notifier) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -104,7 +104,7 @@ class AttendanceScreen extends BaseScreen<AttendanceNotifier> {
     );
   }
 
-  Widget _buildLocationSection() {
+  Widget _buildLocationSection(AttendanceNotifier notifier) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -120,38 +120,34 @@ class AttendanceScreen extends BaseScreen<AttendanceNotifier> {
               ),
             ),
             SizedBox(height: 16),
-            if (notifier.isLoading)
-              CircularProgressIndicator()
-            else if (notifier.errorMessage.isNotEmpty)
-              Text(
-                notifier.errorMessage,
-                style: TextStyle(color: Colors.red),
-                textAlign: TextAlign.center,
-              )
-            else if (notifier.currentPosition != null)
-              Column(
-                children: [
-                  Text(
-                    notifier.isWithinRange
-                        ? 'Anda berada dalam area sekolah'
-                        : 'Anda berada di luar area sekolah',
-                    style: TextStyle(
-                      color: notifier.isWithinRange ? Colors.green : Colors.red,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Lat: ${notifier.currentPosition!.latitude}\nLong: ${notifier.currentPosition!.longitude}',
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+            Container(
+              height: 200,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(12),
               ),
+              child: notifier.currentLocation != null
+                  ? Center(
+                      child: Text(
+                        '${notifier.currentLocation!.latitude}, ${notifier.currentLocation!.longitude}',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    )
+                  : Center(
+                      child: Text(
+                        'Lokasi belum tersedia',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ),
+            ),
             SizedBox(height: 16),
             ElevatedButton.icon(
-              onPressed: () => notifier.checkLocation(),
+              onPressed: () => notifier.getCurrentLocation(),
               icon: Icon(Icons.location_on),
-              label: Text('Periksa Lokasi'),
+              label: Text('Dapatkan Lokasi'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color.fromRGBO(243, 154, 0, 0.988),
                 padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
@@ -166,26 +162,27 @@ class AttendanceScreen extends BaseScreen<AttendanceNotifier> {
     );
   }
 
-  Widget _buildSubmitButton(BuildContext context) {
-    bool canSubmit = notifier.selectedImage != null &&
-        notifier.currentPosition != null &&
-        notifier.isWithinRange;
-
+  Widget _buildSubmitButton(BuildContext context, AttendanceNotifier notifier) {
     return ElevatedButton(
-      onPressed: canSubmit ? () => notifier.submitAttendance() : null,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 16),
-        child: Text(
-          'Submit Absensi',
-          style: TextStyle(fontSize: 18),
-        ),
-      ),
+      onPressed: notifier.isLoading || notifier.selectedImage == null || notifier.currentLocation == null
+          ? null
+          : () => notifier.submitAttendance(context),
       style: ElevatedButton.styleFrom(
         backgroundColor: Color.fromRGBO(243, 154, 0, 0.988),
+        padding: EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
       ),
+      child: notifier.isLoading
+          ? CircularProgressIndicator(color: Colors.white)
+          : Text(
+              'Submit Absensi',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
     );
   }
 }

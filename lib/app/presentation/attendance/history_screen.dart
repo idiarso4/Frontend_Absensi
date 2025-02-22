@@ -4,21 +4,21 @@ import 'package:skansapung_presensi/app/presentation/attendance/history_notifier
 import 'package:skansapung_presensi/app/presentation/widgets/base_screen.dart';
 
 class HistoryScreen extends BaseScreen<HistoryNotifier> {
-  HistoryScreen() : super(title: 'Riwayat Absensi');
+  const HistoryScreen({Key? key}) : super(title: 'Riwayat Absensi', key: key);
 
   @override
-  Widget buildScreenContent(BuildContext context) {
+  Widget buildScreenContent(BuildContext context, HistoryNotifier notifier) {
     return Column(
       children: [
-        _buildMonthSelector(),
+        _buildMonthSelector(notifier),
         Expanded(
-          child: _buildHistoryList(),
+          child: _buildHistoryList(notifier),
         ),
       ],
     );
   }
 
-  Widget _buildMonthSelector() {
+  Widget _buildMonthSelector(HistoryNotifier notifier) {
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -66,7 +66,7 @@ class HistoryScreen extends BaseScreen<HistoryNotifier> {
     );
   }
 
-  Widget _buildHistoryList() {
+  Widget _buildHistoryList(HistoryNotifier notifier) {
     if (notifier.isLoading) {
       return Center(child: CircularProgressIndicator());
     }
@@ -105,193 +105,147 @@ class HistoryScreen extends BaseScreen<HistoryNotifier> {
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: () => notifier.loadHistory(),
-      child: ListView.builder(
-        padding: EdgeInsets.all(16),
-        itemCount: notifier.records.length,
-        itemBuilder: (context, index) {
-          final record = notifier.records[index];
-          return Card(
-            margin: EdgeInsets.only(bottom: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: InkWell(
-              onTap: () => _showAttendanceDetail(context, record),
-              borderRadius: BorderRadius.circular(12),
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          DateFormat('dd MMMM yyyy').format(record.date),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Color(int.parse(
-                              notifier.getStatusColor(record.status).substring(1),
-                              radix: 16,
-                            ) + 0xFF000000),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            record.status,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Icon(
-                          record.type == 'check-in'
-                              ? Icons.login
-                              : Icons.logout,
-                          color: Color.fromRGBO(243, 154, 0, 0.988),
-                          size: 20,
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          '${record.type == 'check-in' ? 'Masuk' : 'Pulang'} - ${notifier.formatTime(record.time)}',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (record.location != null) ...[
-                      SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.location_on,
-                            color: Color.fromRGBO(243, 154, 0, 0.988),
-                            size: 20,
-                          ),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Lat: ${record.location!['latitude']?.toStringAsFixed(6)}, Long: ${record.location!['longitude']?.toStringAsFixed(6)}',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      ),
+    return ListView.builder(
+      padding: EdgeInsets.all(16),
+      itemCount: notifier.records.length,
+      itemBuilder: (context, index) {
+        final record = notifier.records[index];
+        return _buildHistoryCard(record);
+      },
     );
   }
 
-  void _showAttendanceDetail(BuildContext context, AttendanceRecord record) {
-    showModalBottomSheet(
-      context: context,
+  Widget _buildHistoryCard(AttendanceRecord record) {
+    return Card(
+      margin: EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.circular(12),
       ),
-      builder: (context) => Container(
-        padding: EdgeInsets.all(20),
+      child: Padding(
+        padding: EdgeInsets.all(16),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Detail Absensi',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 20),
-            if (record.photoUrl != null) ...[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  record.photoUrl!,
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    height: 200,
-                    color: Colors.grey[200],
-                    child: Icon(
-                      Icons.error_outline,
-                      size: 48,
-                      color: Colors.grey[400],
-                    ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  DateFormat('EEEE, d MMMM yyyy').format(record.date),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
+                _buildStatusChip(record.status),
+              ],
+            ),
+            SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildTimeInfo(
+                    'Check In',
+                    record.checkIn,
+                    Icons.login,
+                    Colors.green,
+                  ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: _buildTimeInfo(
+                    'Check Out',
+                    record.checkOut,
+                    Icons.logout,
+                    Colors.red,
+                  ),
+                ),
+              ],
+            ),
+            if (record.note != null && record.note!.isNotEmpty) ...[
+              SizedBox(height: 12),
+              Text(
+                'Catatan:',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 4),
+              Text(
+                record.note!,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
             ],
-            _buildDetailRow('Tanggal', DateFormat('dd MMMM yyyy').format(record.date)),
-            _buildDetailRow('Waktu', notifier.formatTime(record.time)),
-            _buildDetailRow('Tipe', record.type == 'check-in' ? 'Masuk' : 'Pulang'),
-            _buildDetailRow('Status', record.status),
-            if (record.location != null)
-              _buildDetailRow(
-                'Lokasi',
-                'Lat: ${record.location!['latitude']?.toStringAsFixed(6)}\nLong: ${record.location!['longitude']?.toStringAsFixed(6)}',
-              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 80,
-            child: Text(
+  Widget _buildStatusChip(String status) {
+    Color color;
+    switch (status.toLowerCase()) {
+      case 'hadir':
+        color = Colors.green;
+        break;
+      case 'terlambat':
+        color = Colors.orange;
+        break;
+      case 'alpha':
+        color = Colors.red;
+        break;
+      default:
+        color = Colors.grey;
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color),
+      ),
+      child: Text(
+        status,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTimeInfo(String label, TimeOfDay? time, IconData icon, Color color) {
+    final formattedTime = time != null
+        ? '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}'
+        : '-';
+    return Row(
+      children: [
+        Icon(icon, color: color, size: 20),
+        SizedBox(width: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
               label,
               style: TextStyle(
+                fontSize: 12,
                 color: Colors.grey[600],
-                fontSize: 14,
               ),
             ),
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              value,
+            Text(
+              formattedTime,
               style: TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 }

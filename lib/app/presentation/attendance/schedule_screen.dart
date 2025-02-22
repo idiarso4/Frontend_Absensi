@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:skansapung_presensi/app/presentation/attendance/schedule_notifier.dart';
 import 'package:skansapung_presensi/app/presentation/widgets/base_screen.dart';
 
 class ScheduleScreen extends BaseScreen<ScheduleNotifier> {
-  ScheduleScreen() : super(title: 'Jadwal Absensi');
+  const ScheduleScreen({Key? key}) : super(title: 'Jadwal Absensi', key: key);
 
   @override
-  Widget buildScreenContent(BuildContext context) {
+  Widget buildScreenContent(BuildContext context, ScheduleNotifier notifier) {
     return RefreshIndicator(
       onRefresh: () => notifier.loadSchedules(),
-      child: _buildScheduleList(),
+      child: _buildScheduleList(notifier),
     );
   }
 
-  Widget _buildScheduleList() {
+  Widget _buildScheduleList(ScheduleNotifier notifier) {
     if (notifier.isLoading) {
-      return Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (notifier.errorMessage.isNotEmpty) {
@@ -25,15 +26,15 @@ class ScheduleScreen extends BaseScreen<ScheduleNotifier> {
           children: [
             Text(
               notifier.errorMessage,
-              style: TextStyle(color: Colors.red),
+              style: const TextStyle(color: Colors.red),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => notifier.loadSchedules(),
-              child: Text('Retry'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromRGBO(243, 154, 0, 0.988),
+                backgroundColor: const Color.fromRGBO(243, 154, 0, 0.988),
               ),
+              child: const Text('Retry'),
             ),
           ],
         ),
@@ -41,63 +42,20 @@ class ScheduleScreen extends BaseScreen<ScheduleNotifier> {
     }
 
     return ListView.builder(
-      padding: EdgeInsets.all(16),
-      itemCount: notifier.schedules.length + 1, // +1 for the legend
+      padding: const EdgeInsets.all(16),
+      itemCount: notifier.schedules.length + 1,
       itemBuilder: (context, index) {
         if (index == 0) {
           return _buildLegend();
         }
         final schedule = notifier.schedules[index - 1];
-        return _buildScheduleCard(schedule);
+        return _buildScheduleCard(context, schedule);
       },
     );
   }
 
-  Widget _buildLegend() {
-    return Card(
-      margin: EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Keterangan Jadwal',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 12),
-            Row(
-              children: [
-                Icon(
-                  Icons.circle,
-                  size: 12,
-                  color: Colors.green,
-                ),
-                SizedBox(width: 8),
-                Text('Aktif'),
-                SizedBox(width: 24),
-                Icon(
-                  Icons.circle,
-                  size: 12,
-                  color: Colors.grey,
-                ),
-                SizedBox(width: 8),
-                Text('Tidak Aktif'),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildScheduleCard(Schedule schedule) {
+  Widget _buildScheduleCard(BuildContext context, Schedule schedule) {
+    final notifier = Provider.of<ScheduleNotifier>(context);
     return Card(
       margin: EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(
@@ -146,8 +104,8 @@ class ScheduleScreen extends BaseScreen<ScheduleNotifier> {
                   ),
                 ],
               ),
-              SizedBox(height: 12),
-              if (schedule.isActive) ...[
+              if (schedule.isActive) ...[  
+                SizedBox(height: 12),
                 _buildTimeRow(
                   'Jam Masuk',
                   notifier.formatTime(schedule.checkIn),
@@ -175,25 +133,69 @@ class ScheduleScreen extends BaseScreen<ScheduleNotifier> {
     );
   }
 
+  Widget _buildLegend() {
+    return Card(
+      margin: EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Keterangan Jadwal',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(
+                  Icons.circle,
+                  size: 12,
+                  color: Colors.green,
+                ),
+                SizedBox(width: 8),
+                Text('Aktif'),
+                SizedBox(width: 24),
+                Icon(
+                  Icons.circle,
+                  size: 12,
+                  color: Colors.grey,
+                ),
+                SizedBox(width: 8),
+                Text('Tidak Aktif'),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildTimeRow(String label, String time, IconData icon) {
     return Row(
       children: [
         Icon(
           icon,
           size: 20,
-          color: Color.fromRGBO(243, 154, 0, 0.988),
+          color: const Color.fromRGBO(243, 154, 0, 0.988),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Text(
           label,
           style: TextStyle(
             color: Colors.grey[600],
           ),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Text(
           time,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),

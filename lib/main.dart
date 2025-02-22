@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:skansapung_presensi/app/presentation/login/login_screen.dart';
+import 'package:skansapung_presensi/app/presentation/login/login_notifier.dart';
 import 'package:skansapung_presensi/app/routes/app_routes.dart';
 import 'package:skansapung_presensi/app/presentation/dashboard/dashboard_notifier.dart';
 import 'package:skansapung_presensi/app/presentation/attendance/attendance_notifier.dart';
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => sl<LoginNotifier>()),
         ChangeNotifierProvider(create: (_) => DashboardNotifier()),
         ChangeNotifierProvider(create: (_) => AttendanceNotifier()),
         ChangeNotifierProvider(create: (_) => HistoryNotifier()),
@@ -42,7 +44,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
         debugShowCheckedModeBanner: false,
-        home: LoginScreen(),
+        initialRoute: '/',
         routes: AppRoutes.getRoutes(),
       ),
     );

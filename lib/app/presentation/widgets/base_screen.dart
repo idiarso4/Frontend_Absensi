@@ -1,30 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:skansapung_presensi/app/presentation/widgets/app_drawer.dart';
-import 'package:skansapung_presensi/core/widget/app_widget.dart';
 
-abstract class BaseScreen<T extends ChangeNotifier> extends AppWidget<T> {
+abstract class BaseScreen<T extends ChangeNotifier> extends StatefulWidget {
   final String title;
-  final bool showDrawer;
   final List<Widget>? actions;
 
-  BaseScreen({
+  const BaseScreen({
+    Key? key,
     required this.title,
-    this.showDrawer = true,
     this.actions,
-  });
+  }) : super(key: key);
+
+  Widget buildScreenContent(BuildContext context, T notifier);
 
   @override
-  Widget bodyBuild(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        backgroundColor: Color.fromRGBO(243, 154, 0, 0.988),
-        actions: actions,
-      ),
-      drawer: showDrawer ? AppDrawer() : null,
-      body: buildScreenContent(context),
+  State<BaseScreen<T>> createState() => _BaseScreenState<T>();
+}
+
+class _BaseScreenState<T extends ChangeNotifier> extends State<BaseScreen<T>> {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<T>(
+      builder: (context, notifier, child) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(widget.title),
+            actions: widget.actions,
+          ),
+          drawer: AppDrawer(),
+          body: widget.buildScreenContent(context, notifier),
+        );
+      },
     );
   }
-
-  Widget buildScreenContent(BuildContext context);
 }

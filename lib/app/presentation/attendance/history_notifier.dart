@@ -2,19 +2,21 @@ import 'package:flutter/material.dart';
 
 class AttendanceRecord {
   final DateTime date;
-  final String type; // 'check-in' or 'check-out'
-  final TimeOfDay time;
+  final TimeOfDay checkIn;
+  final TimeOfDay checkOut;
   final String status; // 'on-time', 'late', 'absent'
   final String? photoUrl;
   final Map<String, double>? location;
+  final String? note;
 
   AttendanceRecord({
     required this.date,
-    required this.type,
-    required this.time,
+    required this.checkIn,
+    required this.checkOut,
     required this.status,
     this.photoUrl,
     this.location,
+    this.note,
   });
 }
 
@@ -48,16 +50,14 @@ class HistoryNotifier extends ChangeNotifier {
         final date = DateTime.now().subtract(Duration(days: index));
         return AttendanceRecord(
           date: date,
-          type: index % 2 == 0 ? 'check-in' : 'check-out',
-          time: TimeOfDay(
-            hour: index % 2 == 0 ? 7 + (index % 3) : 16 + (index % 3),
-            minute: 30 + (index % 30),
-          ),
-          status: index % 5 == 0 ? 'late' : 'on-time',
+          checkIn: TimeOfDay(hour: 7 + (index % 3), minute: 30),
+          checkOut: TimeOfDay(hour: 16 + (index % 3), minute: 30),
+          status: index % 5 == 0 ? 'terlambat' : 'hadir',
           location: {
             'latitude': -6.2088 + (index * 0.001),
             'longitude': 106.8456 + (index * 0.001),
           },
+          note: index % 3 == 0 ? 'Catatan untuk absensi hari ini' : null,
         );
       });
 

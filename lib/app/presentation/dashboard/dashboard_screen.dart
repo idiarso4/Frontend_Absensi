@@ -6,7 +6,7 @@ class DashboardScreen extends BaseScreen<DashboardNotifier> {
   DashboardScreen() : super(title: 'Dashboard');
 
   @override
-  Widget buildScreenContent(BuildContext context) {
+  Widget buildScreenContent(BuildContext context, DashboardNotifier notifier) {
     return RefreshIndicator(
       onRefresh: () => notifier.loadDashboardData(),
       child: SingleChildScrollView(
@@ -17,9 +17,9 @@ class DashboardScreen extends BaseScreen<DashboardNotifier> {
           children: [
             _buildWelcomeCard(),
             SizedBox(height: 20),
-            _buildStatisticsGrid(),
+            _buildStatisticsGrid(notifier),
             SizedBox(height: 20),
-            _buildRecentActivities(),
+            _buildRecentActivities(notifier),
           ],
         ),
       ),
@@ -56,7 +56,7 @@ class DashboardScreen extends BaseScreen<DashboardNotifier> {
     );
   }
 
-  Widget _buildStatisticsGrid() {
+  Widget _buildStatisticsGrid(DashboardNotifier notifier) {
     return GridView.count(
       crossAxisCount: 2,
       crossAxisSpacing: 16.0,
@@ -115,7 +115,7 @@ class DashboardScreen extends BaseScreen<DashboardNotifier> {
             Text(
               value,
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
@@ -127,7 +127,7 @@ class DashboardScreen extends BaseScreen<DashboardNotifier> {
     );
   }
 
-  Widget _buildRecentActivities() {
+  Widget _buildRecentActivities(DashboardNotifier notifier) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -137,7 +137,7 @@ class DashboardScreen extends BaseScreen<DashboardNotifier> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Aktivitas Terbaru',
+              'Aktivitas Terkini',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -157,15 +157,16 @@ class DashboardScreen extends BaseScreen<DashboardNotifier> {
               ListView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
-                itemCount: 5,
+                itemCount: notifier.dashboardData['recentActivities']?.length ?? 0,
                 itemBuilder: (context, index) {
+                  final activity = notifier.dashboardData['recentActivities'][index];
                   return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Color.fromRGBO(243, 154, 0, 0.988),
-                      child: Icon(Icons.access_time, color: Colors.white),
+                    leading: Icon(
+                      _getActivityIcon(activity['type']),
+                      color: _getActivityColor(activity['type']),
                     ),
-                    title: Text('Check-in at 07:30'),
-                    subtitle: Text('22 Feb 2025'),
+                    title: Text(activity['description']),
+                    subtitle: Text(activity['time']),
                   );
                 },
               ),
@@ -173,5 +174,31 @@ class DashboardScreen extends BaseScreen<DashboardNotifier> {
         ),
       ),
     );
+  }
+
+  IconData _getActivityIcon(String type) {
+    switch (type) {
+      case 'check_in':
+        return Icons.login;
+      case 'check_out':
+        return Icons.logout;
+      case 'break':
+        return Icons.restaurant;
+      default:
+        return Icons.event_note;
+    }
+  }
+
+  Color _getActivityColor(String type) {
+    switch (type) {
+      case 'check_in':
+        return Colors.green;
+      case 'check_out':
+        return Colors.red;
+      case 'break':
+        return Colors.orange;
+      default:
+        return Colors.blue;
+    }
   }
 }
