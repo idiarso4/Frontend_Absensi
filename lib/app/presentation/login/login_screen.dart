@@ -1,11 +1,13 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:skansapung_presensi/app/presentation/home/home_screen.dart';
 import 'package:skansapung_presensi/app/presentation/login/login_notifier.dart';
 import 'package:skansapung_presensi/core/helper/global_helper.dart';
 import 'package:skansapung_presensi/core/widget/app_widget.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
-class LoginScreen extends AppWidget<LoginNotifier, void, void> {
+class LoginScreen extends AppWidget<LoginNotifier> {
+  LoginNotifier notifier = LoginNotifier();
+
   @override
   void checkVariableAfterUi(BuildContext context) {
     if (notifier.isLoged) {
@@ -192,7 +194,13 @@ class LoginScreen extends AppWidget<LoginNotifier, void, void> {
     notifier.isShowPassword = !notifier.isShowPassword;
   }
 
-  _onPressLogin(BuildContext context) {
-    notifier.login();
+  _onPressLogin(BuildContext context) async {
+    await notifier.login();
+    if (notifier.errorMessage.isEmpty) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
+    }
   }
 }
