@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:skansapung_presensi/app/presentation/attendance/history_notifier.dart';
-import 'package:skansapung_presensi/app/presentation/widgets/base_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/attendance/history_notifier.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/widgets/base_screen.dart';
 
 class HistoryScreen extends BaseScreen<HistoryNotifier> {
   const HistoryScreen({Key? key}) : super(title: 'Riwayat Absensi', key: key);

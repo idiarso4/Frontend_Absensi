@@ -18,6 +18,13 @@ class ProfileNotifier extends AppProvider {
   bool _canUpdateProfile = false;
   bool _isLoading = false;
 
+  String get name => _name;
+  String get role => _role;
+  String get email => _email;
+  String get phone => _phone;
+  String get nip => _nip;
+  String get address => _address;
+  String? get profilePicture => _profilePicture;
   bool get canUpdateProfile => _canUpdateProfile;
   bool get isLoading => _isLoading;
 

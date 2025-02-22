@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:skansapung_presensi/app/presentation/dashboard/dashboard_screen.dart';
-import 'package:skansapung_presensi/app/presentation/attendance/attendance_screen.dart';
-import 'package:skansapung_presensi/app/presentation/attendance/history_screen.dart';
-import 'package:skansapung_presensi/app/presentation/attendance/schedule_screen.dart';
-import 'package:skansapung_presensi/app/presentation/leave/leave_screen.dart';
-import 'package:skansapung_presensi/app/presentation/login/login_screen.dart';
-import 'package:skansapung_presensi/app/presentation/profile/profile_screen.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/dashboard/dashboard_screen.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/attendance/attendance_screen.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/attendance/history_screen.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/attendance/schedule_screen.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/leave/leave_screen.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/login/login_screen.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/profile/profile_screen.dart';
 
 class AppRoutes {
   static const String home = '/';

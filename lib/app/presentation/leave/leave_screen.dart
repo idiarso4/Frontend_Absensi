@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:skansapung_presensi/app/data/model/leave_request.dart';
-import 'package:skansapung_presensi/app/presentation/leave/leave_notifier.dart';
-import 'package:skansapung_presensi/app/presentation/widgets/base_screen.dart';
+import 'package:absen_smkn1_punggelan/app/data/model/leave_request.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/leave/leave_notifier.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/widgets/base_screen.dart';
 
 class LeaveScreen extends BaseScreen<LeaveNotifier> {
   LeaveScreen() : super(

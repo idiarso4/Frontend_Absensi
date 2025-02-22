@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:skansapung_presensi/app/presentation/dashboard/dashboard_notifier.dart';
-import 'package:skansapung_presensi/app/presentation/widgets/base_screen.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/dashboard/dashboard_notifier.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/widgets/base_screen.dart';
 
 class DashboardScreen extends BaseScreen<DashboardNotifier> {
   DashboardScreen() : super(title: 'Dashboard');

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:skansapung_presensi/app/presentation/attendance/attendance_notifier.dart';
-import 'package:skansapung_presensi/app/presentation/widgets/base_screen.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/attendance/attendance_notifier.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/widgets/base_screen.dart';
 
 class AttendanceScreen extends BaseScreen<AttendanceNotifier> {
   const AttendanceScreen({Key? key}) : super(title: 'Absensi', key: key);

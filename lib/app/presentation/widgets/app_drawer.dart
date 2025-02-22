@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:skansapung_presensi/app/data/model/menu_item.dart';
+import 'package:absen_smkn1_punggelan/app/data/model/menu_item.dart';
+import 'package:absen_smkn1_punggelan/app/data/model/menu_items.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({Key? key}) : super(key: key);
