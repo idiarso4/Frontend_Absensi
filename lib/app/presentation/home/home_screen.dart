@@ -20,6 +20,7 @@ import 'package:retrofit/http.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:skansapung_presensi/app/module/entity/quote.dart';
+import 'package:skansapung_presensi/app/presentation/widgets/app_drawer.dart';
 
 class HomeScreen extends AppWidget<HomeNotifier, void, void> {
   final Color primaryOrange = Color.fromRGBO(243, 154, 0, 0.988);
@@ -105,18 +106,25 @@ class HomeScreen extends AppWidget<HomeNotifier, void, void> {
 
   @override
   Widget bodyBuild(BuildContext context) {
-    return SafeArea(
-      child: RefreshIndicator(
-        onRefresh: () => notifier.init(),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _headerWithCalendar(context),
-              _quoteWidget(),
-              _todayAttendanceCard(context),
-              _activitySection(context),
-              _thisMonthLayout(context)
-            ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Home'),
+        backgroundColor: primaryOrange,
+      ),
+      drawer: AppDrawer(),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () => notifier.init(),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _headerWithCalendar(context),
+                _quoteWidget(),
+                _todayAttendanceCard(context),
+                _activitySection(context),
+                _thisMonthLayout(context)
+              ],
+            ),
           ),
         ),
       ),
