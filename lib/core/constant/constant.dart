@@ -1,4 +1,4 @@
-const String BASE_URL = 'https://presensi.sijasmkn1punggelan.org';
+const String BASE_URL = 'https://app.sijasmkn1punggelan.org';
 
 const String PREF_AUTH = 'pref-auth';
 const String PREF_ID = 'pred_id';
