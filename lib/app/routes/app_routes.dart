@@ -36,25 +36,13 @@ class AppRoutes {
   static const String counseling = '/counseling';
   static const String duty = '/duty';
 
-  static Map<String, WidgetBuilder> getRoutes() {
+  static Map<String, Widget Function(BuildContext)> getRoutes() {
     return {
-      home: (context) => HomeScreen(),
-      dashboard: (context) => DashboardScreen(),
-      attendance: (context) => AttendanceScreen(),
-      attendanceHistory: (context) => HistoryScreen(),
-      attendanceSchedule: (context) => ScheduleScreen(),
-      leave: (context) => LeaveScreen(),
-      profile: (context) => ProfileScreen(),
-      learning: (context) => LearningScreen(),
-      internship: (context) => InternshipScreen(),
-      worship: (context) => WorshipScreen(),
-      academic: (context) => AcademicScreen(),
-      academicClass: (context) => ClassScreen(),
-      academicSubjects: (context) => SubjectsScreen(),
-      academicGrades: (context) => GradesScreen(),
-      extracurricular: (context) => ExtracurricularScreen(),
-      counseling: (context) => CounselingScreen(),
-      duty: (context) => DutyScreen(),
+      '/dashboard': (context) => DashboardScreen(),
+      '/attendance': (context) => AttendanceScreen(),
+      '/history': (context) => HistoryScreen(),
+      '/schedule': (context) => ScheduleScreen(),
+      '/leave': (context) => LeaveScreen(),
     };
   }
 }

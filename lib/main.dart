@@ -11,6 +11,7 @@ import 'package:skansapung_presensi/core/widget/error_app_widget.dart';
 import 'package:skansapung_presensi/core/widget/loading_app_widget.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:skansapung_presensi/core/helper/notification_helper.dart';
+import 'package:skansapung_presensi/app/presentation/leave/leave_notifier.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AttendanceNotifier()),
         ChangeNotifierProvider(create: (_) => HistoryNotifier()),
         ChangeNotifierProvider(create: (_) => ScheduleNotifier()),
+        ChangeNotifierProvider(create: (_) => LeaveNotifier()),
       ],
       child: MaterialApp(
         title: 'PRESENSI SKANSAPUNG',
