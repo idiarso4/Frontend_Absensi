@@ -1,0 +1,206 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:skansapung_presensi/app/presentation/attendance/schedule_notifier.dart';
+import 'package:skansapung_presensi/app/presentation/widgets/base_screen.dart';
+
+class ScheduleScreen extends BaseScreen<ScheduleNotifier> {
+  const ScheduleScreen({Key? key}) : super(title: 'Jadwal Absensi', key: key);
+
+  @override
+  Widget buildScreenContent(BuildContext context, ScheduleNotifier notifier) {
+    return RefreshIndicator(
+      onRefresh: () => notifier.loadSchedules(),
+      child: _buildScheduleList(notifier),
+    );
+  }
+
+  Widget _buildScheduleList(ScheduleNotifier notifier) {
+    if (notifier.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (notifier.errorMessage.isNotEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              notifier.errorMessage,
+              style: const TextStyle(color: Colors.red),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => notifier.loadSchedules(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(243, 154, 0, 0.988),
+              ),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: notifier.schedules.length + 1,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return _buildLegend();
+        }
+        final schedule = notifier.schedules[index - 1];
+        return _buildScheduleCard(context, schedule);
+      },
+    );
+  }
+
+  Widget _buildScheduleCard(BuildContext context, Schedule schedule) {
+    final notifier = Provider.of<ScheduleNotifier>(context);
+    return Card(
+      margin: EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: schedule.isActive ? Colors.green : Colors.grey,
+            width: 2,
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    schedule.day,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: schedule.isActive ? Colors.green : Colors.grey,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      schedule.isActive ? 'Aktif' : 'Tidak Aktif',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (schedule.isActive) ...[  
+                SizedBox(height: 12),
+                _buildTimeRow(
+                  'Jam Masuk',
+                  notifier.formatTime(schedule.checkIn),
+                  Icons.login,
+                ),
+                SizedBox(height: 8),
+                _buildTimeRow(
+                  'Jam Pulang',
+                  notifier.formatTime(schedule.checkOut),
+                  Icons.logout,
+                ),
+              ] else
+                Text(
+                  'Libur',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[600],
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLegend() {
+    return Card(
+      margin: EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Keterangan Jadwal',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(
+                  Icons.circle,
+                  size: 12,
+                  color: Colors.green,
+                ),
+                SizedBox(width: 8),
+                Text('Aktif'),
+                SizedBox(width: 24),
+                Icon(
+                  Icons.circle,
+                  size: 12,
+                  color: Colors.grey,
+                ),
+                SizedBox(width: 8),
+                Text('Tidak Aktif'),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTimeRow(String label, String time, IconData icon) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 20,
+          color: const Color.fromRGBO(243, 154, 0, 0.988),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.grey[600],
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          time,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+}

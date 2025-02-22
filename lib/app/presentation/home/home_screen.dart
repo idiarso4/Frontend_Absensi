@@ -1,18 +1,27 @@
+import 'dart:io';
 import 'dart:math';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:http/http.dart' as http;
+import 'package:retrofit/http.dart';
+import 'dart:convert';
+
 import 'package:absen_smkn1_punggelan/app/module/entity/attendance.dart';
+import 'package:absen_smkn1_punggelan/app/module/entity/quote.dart';
 import 'package:absen_smkn1_punggelan/app/presentation/detail_attendance/detail_attendance_screen.dart';
 import 'package:absen_smkn1_punggelan/app/presentation/face_recognition/face_recognition_screen.dart';
 import 'package:absen_smkn1_punggelan/app/presentation/home/home_notifier.dart';
 import 'package:absen_smkn1_punggelan/app/presentation/login/login_screen.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/map/map_screen.dart';
 import 'package:absen_smkn1_punggelan/app/presentation/profile/profile_screen.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/widgets/app_drawer.dart';
 import 'package:absen_smkn1_punggelan/core/constant/quotes.dart';
 import 'package:absen_smkn1_punggelan/core/helper/date_time_helper.dart';
 import 'package:absen_smkn1_punggelan/core/helper/dialog_helper.dart';
 import 'package:absen_smkn1_punggelan/core/helper/global_helper.dart';
 import 'package:absen_smkn1_punggelan/core/helper/shared_preferences_helper.dart';
 import 'package:absen_smkn1_punggelan/core/widget/app_widget.dart';
-import 'package:flutter/material.dart';
-import 'package:absen_smkn1_punggelan/app/module/entity/quote.dart';
 
 class HomeScreen extends AppWidget<HomeNotifier, void, void> {
   final Color primaryOrange = Color.fromRGBO(243, 154, 0, 0.988);
@@ -21,66 +30,96 @@ class HomeScreen extends AppWidget<HomeNotifier, void, void> {
   final Color textDark = Color.fromRGBO(33, 33, 33, 1);
   final Color textGrey = Colors.grey;
 
-  QuoteModel getRandomQuote() {
-    final random = Random();
-    final quote = motivationalQuotes[random.nextInt(motivationalQuotes.length)];
-    return QuoteModel(
-      text: quote.text,
-      author: quote.author,
-    );
+  Future<QuoteModel> fetchQuote() async {
+    if (kIsWeb) {
+      // Return default quote for web platform
+      return QuoteModel(
+          text: "Jadilah versi terbaik dari dirimu", 
+          author: "SMK"
+      );
+    }
+    
+    try {
+      final response = await http.get(
+          Uri.parse('https://api-kata-bijak.vercel.app/api/quotes/random'));
+
+      if (response.statusCode == 200) {
+        return QuoteModel.fromJson(jsonDecode(response.body));
+      } else {
+        return QuoteModel(
+            text: "Jadilah versi terbaik dari dirimu", author: "SMK");
+      }
+    } catch (e) {
+      return QuoteModel(text: "Semangat menggapai masa depan", author: "SMK");
+    }
   }
 
   Widget _quoteWidget() {
-    final quote = getRandomQuote();
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: primaryOrange.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: primaryOrange.withOpacity(0.2),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '"${quote.text}"',
-            style: TextStyle(
-              fontSize: 14,
-              fontStyle: FontStyle.italic,
-              color: textDark,
+    return FutureBuilder<QuoteModel>(
+      future: fetchQuote(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return Container(
+            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: primaryOrange.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: primaryOrange.withOpacity(0.2),
+              ),
             ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            "- ${quote.author}",
-            style: TextStyle(
-              fontSize: 12,
-              color: textGrey,
-              fontWeight: FontWeight.w500,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '"${snapshot.data!.text}"',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontStyle: FontStyle.italic,
+                    color: textDark,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  "- ${snapshot.data!.author}",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: textGrey,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
+          );
+        } else {
+          return Container();
+        }
+      },
     );
   }
 
   @override
   Widget bodyBuild(BuildContext context) {
-    return SafeArea(
-      child: RefreshIndicator(
-        onRefresh: () => notifier.init(),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _headerWithCalendar(context),
-              _quoteWidget(),
-              _todayAttendanceCard(context),
-              _activitySection(context),
-              _thisMonthLayout(context)
-            ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Home'),
+        backgroundColor: primaryOrange,
+      ),
+      drawer: AppDrawer(),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () => notifier.init(),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _headerWithCalendar(context),
+                _quoteWidget(),
+                _todayAttendanceCard(context),
+                _activitySection(context),
+                _thisMonthLayout(context)
+              ],
+            ),
           ),
         ),
       ),

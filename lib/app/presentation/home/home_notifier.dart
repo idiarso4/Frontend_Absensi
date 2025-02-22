@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:absen_smkn1_punggelan/app/module/entity/attendance.dart';
 import 'package:absen_smkn1_punggelan/app/module/entity/schedule.dart';
 import 'package:absen_smkn1_punggelan/app/module/use_case/attendance_get_this_month.dart';
@@ -24,36 +25,35 @@ class HomeNotifier extends AppProvider {
       this._scheduleGetUseCase, this._scheduleBannedUseCase) {
     init();
   }
+
   bool _isGrantedNotificationPresmission = false;
   int _timeNotification = 5;
-  List<DropdownMenuEntry<int>> _listEditNotification = [
-    DropdownMenuEntry<int>(value: 5, label: '5 menit'),
-    DropdownMenuEntry<int>(value: 15, label: '15 menit'),
-    DropdownMenuEntry<int>(value: 30, label: '30 menit')
-  ];
+  List<DropdownMenuEntry<int>> _listTimeNotification = [];
   String _name = '';
-  bool _isPhysicDevice = true;
+  String _email = '';
+  String _role = '';
+  String _profilePicture = '';
+  String _deviceId = '';
+  List<ScheduleEntity> _schedules = [];
+  List<AttendanceEntity> _attendances = [];
   AttendanceEntity? _attendanceToday;
-  List<AttendanceEntity> _listAttendanceThisMonth = [];
-  ScheduleEntity? _schedule;
-  bool _isLeaves = false;
 
+  bool get isGrantedNotificationPresmission => _isGrantedNotificationPresmission;
   int get timeNotification => _timeNotification;
-  bool get isGrantedNotificationPermission => _isGrantedNotificationPresmission;
-  List<DropdownMenuEntry<int>> get listEditNotification =>
-      _listEditNotification;
+  List<DropdownMenuEntry<int>> get listTimeNotification => _listTimeNotification;
   String get name => _name;
-  bool get isPhysicDevice => _isPhysicDevice;
+  String get email => _email;
+  String get role => _role;
+  String get profilePicture => _profilePicture;
+  String get deviceId => _deviceId;
+  List<ScheduleEntity> get schedules => _schedules;
+  List<AttendanceEntity> get attendances => _attendances;
   AttendanceEntity? get attendanceToday => _attendanceToday;
-  List<AttendanceEntity> get listAttendanceThisMonth =>
-      _listAttendanceThisMonth;
-  ScheduleEntity? get schedule => _schedule;
-  bool get isLeaves => _isLeaves;
 
   @override
   Future<void> init() async {
     await _getUserDetail();
-    // await _getDeviceInfo();
+    await _getDeviceInfo();
     await _getNotificationPermission();
     if (errorMessage.isEmpty) await _getAttendanceToday();
     if (errorMessage.isEmpty) await _getAttendanceThisMonth();
@@ -63,6 +63,10 @@ class HomeNotifier extends AppProvider {
   _getUserDetail() async {
     showLoading();
     _name = await SharedPreferencesHelper.getString(PREF_NAME);
+    _email = await SharedPreferencesHelper.getString('email') ?? '';
+    _role = await SharedPreferencesHelper.getString('role') ?? '';
+    _profilePicture =
+        await SharedPreferencesHelper.getString('profile_picture') ?? '';
     final pref_notif = await SharedPreferencesHelper.getInt(PREF_NOTIF_SETTING);
     if (pref_notif != null) {
       _timeNotification = pref_notif;
@@ -75,7 +79,9 @@ class HomeNotifier extends AppProvider {
 
   _getDeviceInfo() async {
     showLoading();
-    if (Platform.isAndroid) {
+    if (kIsWeb) {
+      _isPhysicDevice = true; // Consider web as a physical device
+    } else if (Platform.isAndroid) {
       final androidInfo = await DeviceInfoPlugin().androidInfo;
       _isPhysicDevice = androidInfo.isPhysicalDevice;
     } else if (Platform.isIOS) {
@@ -88,6 +94,10 @@ class HomeNotifier extends AppProvider {
   }
 
   _getNotificationPermission() async {
+    if (kIsWeb) {
+      _isGrantedNotificationPresmission = false;
+      return;
+    }
     _isGrantedNotificationPresmission =
         await NotificationHelper.isPermissionGranted();
     if (!_isGrantedNotificationPresmission) {
@@ -113,7 +123,7 @@ class HomeNotifier extends AppProvider {
     showLoading();
     final response = await _attendanceGetMonthUseCase();
     if (response.success) {
-      _listAttendanceThisMonth = response.data!;
+      _attendances = response.data!;
     } else {
       errorMeesage = response.message;
     }
@@ -126,8 +136,8 @@ class HomeNotifier extends AppProvider {
     final response = await _scheduleGetUseCase();
     if (response.success) {
       if (response.data != null) {
-        _schedule = response.data!;
-        _setNotification();
+        _schedules = response.data!;
+        _schedules.sort((a, b) => a.startTime.compareTo(b.startTime));
       } else {
         _isLeaves = true;
         snackbarMessage = response.message;
@@ -199,5 +209,39 @@ class HomeNotifier extends AppProvider {
     _timeNotification = param;
     _setNotification();
     hideLoading();
+  }
+
+  onChangeTimeNotification(int value) async {
+    _timeNotification = value;
+    await SharedPreferencesHelper.setInt(PREF_TIME_NOTIFICATION, value);
+    notifyListeners();
+  }
+
+  onTapAllowNotification() async {
+    _isGrantedNotificationPresmission =
+        await NotificationHelper.requestNotificationPermission();
+    notifyListeners();
+  }
+
+  onTapBannedSchedule(String id) async {
+    showLoading();
+    final response = await _scheduleBannedUseCase(id);
+    if (response.success) {
+      await _getSchedule();
+    } else {
+      snackbarMessage = response.message;
+    }
+    hideLoading();
+  }
+
+  String getTimeLeft(String startTime) {
+    final now = DateTime.now();
+    final time = DateTimeHelper.stringToDateTime(startTime);
+    final difference = time.difference(now);
+    if (difference.inMinutes < 60) {
+      return '${difference.inMinutes} menit';
+    } else {
+      return '${difference.inHours} jam';
+    }
   }
 }

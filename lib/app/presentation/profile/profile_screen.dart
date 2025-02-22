@@ -51,28 +51,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ElevatedButton(
-              onPressed: () {
+            ListTile(
+              leading: const Icon(Icons.camera),
+              title: const Text('Camera'),
+              onTap: () {
                 Navigator.pop(context);
                 _pickImage(context, ImageSource.camera);
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryOrange,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Camera'),
             ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Gallery'),
+              onTap: () {
                 Navigator.pop(context);
                 _pickImage(context, ImageSource.gallery);
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryOrange,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Gallery'),
             ),
           ],
         ),
@@ -397,65 +390,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage: provider.profilePicture != null
-                          ? NetworkImage(provider.profilePicture!)
-                          : null,
-                      child: provider.profilePicture == null
-                          ? Icon(
-                              Icons.person,
-                              size: 50,
-                              color: primaryOrange,
-                            )
-                          : null,
-                    ),
-                    if (provider.canUpdateProfile)
+                Center(
+                  child: Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.grey[200],
+                        backgroundImage: provider.profilePicture != null
+                            ? FileImage(provider.profilePicture!)
+                            : null,
+                        child: provider.profilePicture == null
+                            ? const Icon(Icons.person, size: 50)
+                            : null,
+                      ),
                       Positioned(
                         bottom: 0,
                         right: 0,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (provider.profilePicture != null)
-                              IconButton(
-                                onPressed: _showDeleteConfirmationDialog,
-                                icon: const Icon(Icons.delete),
-                                color: Colors.red,
-                              ),
-                            IconButton(
-                              onPressed: _showImageSourceDialog,
-                              icon: const Icon(Icons.camera_alt),
-                              color: primaryOrange,
-                            ),
-                          ],
+                        child: CircleAvatar(
+                          backgroundColor: primaryOrange,
+                          radius: 18,
+                          child: IconButton(
+                            icon: const Icon(Icons.camera_alt, size: 18),
+                            color: Colors.white,
+                            onPressed: _showImageSourceDialog,
+                          ),
                         ),
                       ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  provider.name,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  provider.role,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: textGrey,
+                    ],
                   ),
                 ),
                 const SizedBox(height: 24),
-                _buildInfoItem(Icons.email, 'Email', provider.email),
-                _buildInfoItem(Icons.phone, 'Phone', provider.phone),
-                _buildInfoItem(Icons.work, 'NIP', provider.nip),
-                _buildInfoItem(Icons.location_on, 'Address', provider.address),
+                _buildInfoTile('Name', provider.name),
+                _buildInfoTile('Email', provider.email),
+                _buildInfoTile('Role', provider.role),
+                _buildInfoTile('Phone', provider.phone),
+                _buildInfoTile('NIP', provider.nip),
+                _buildInfoTile('Address', provider.address),
                 const SizedBox(height: 24),
                 if (!provider.canUpdateProfile)
                   Container(
@@ -501,46 +471,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildInfoItem(IconData icon, String label, String value) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey.withOpacity(0.2),
-          ),
-        ),
-      ),
-      child: Row(
+  Widget _buildInfoTile(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: primaryOrange.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
+          Text(
+            label,
+            style: TextStyle(
+              color: textGrey,
+              fontSize: 14,
             ),
-            child: Icon(icon, color: primaryOrange, size: 20),
           ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: textGrey,
-                ),
-              ),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
+          const SizedBox(height: 4),
+          Text(
+            value.isEmpty ? '-' : value,
+            style: TextStyle(
+              color: textDark,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
           ),
+          const SizedBox(height: 8),
+          Divider(color: Colors.grey[300]),
         ],
       ),
     );

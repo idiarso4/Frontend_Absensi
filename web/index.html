@@ -19,6 +19,8 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A new Flutter project.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -31,8 +33,38 @@
 
   <title>skansapung_presensi</title>
   <link rel="manifest" href="manifest.json">
+
+  <script>
+    // Disable text selection to prevent focus issues
+    document.addEventListener('selectstart', function(e) { e.preventDefault(); });
+    
+    // Prevent zoom on double tap
+    document.addEventListener('dblclick', function(e) { e.preventDefault(); });
+    
+    // Handle focus for input elements
+    document.addEventListener('click', function(e) {
+      if (e.target.tagName === 'INPUT') {
+        e.target.focus();
+      }
+    });
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
+  <script>
+    window.addEventListener('load', function() {
+      // Initialize focus handling after Flutter is loaded
+      window.addEventListener('flutter-first-frame', function() {
+        var inputs = document.getElementsByTagName('input');
+        for (var i = 0; i < inputs.length; i++) {
+          inputs[i].addEventListener('blur', function() {
+            if (document.hasFocus()) {
+              this.focus();
+            }
+          });
+        }
+      });
+    });
+  </script>
 </body>
 </html>
