@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'package:skansapung_presensi/app/module/entity/attendance.dart';
 import 'package:skansapung_presensi/app/presentation/detail_attendance/detail_attendance_screen.dart';
 import 'package:skansapung_presensi/app/presentation/face_recognition/face_recognition_screen.dart';
@@ -27,6 +29,14 @@ class HomeScreen extends AppWidget<HomeNotifier, void, void> {
   final Color textGrey = Colors.grey;
 
   Future<QuoteModel> fetchQuote() async {
+    if (kIsWeb) {
+      // Return default quote for web platform
+      return QuoteModel(
+          text: "Jadilah versi terbaik dari dirimu", 
+          author: "SMK"
+      );
+    }
+    
     try {
       final response = await http.get(
           Uri.parse('https://api-kata-bijak.vercel.app/api/quotes/random'));

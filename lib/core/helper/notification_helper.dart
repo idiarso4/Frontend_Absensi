@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart';
 import 'package:timezone/data/latest.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class NotificationHelper {
   static FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -83,6 +84,11 @@ class NotificationHelper {
   }
 
   static Future<bool> isPermissionGranted() async {
+    if (kIsWeb) {
+      // Web platform doesn't support local notifications yet
+      return false;
+    }
+    
     bool isGranted = false;
     if (Platform.isIOS) {
       final permission = await flutterLocalNotificationsPlugin

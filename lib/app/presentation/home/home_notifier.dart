@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:skansapung_presensi/app/module/entity/attendance.dart';
 import 'package:skansapung_presensi/app/module/entity/schedule.dart';
 import 'package:skansapung_presensi/app/module/use_case/attendance_get_this_month.dart';
@@ -53,7 +54,7 @@ class HomeNotifier extends AppProvider {
   @override
   Future<void> init() async {
     await _getUserDetail();
-    // await _getDeviceInfo();
+    await _getDeviceInfo();
     await _getNotificationPermission();
     if (errorMessage.isEmpty) await _getAttendanceToday();
     if (errorMessage.isEmpty) await _getAttendanceThisMonth();
@@ -75,7 +76,9 @@ class HomeNotifier extends AppProvider {
 
   _getDeviceInfo() async {
     showLoading();
-    if (Platform.isAndroid) {
+    if (kIsWeb) {
+      _isPhysicDevice = true; // Consider web as a physical device
+    } else if (Platform.isAndroid) {
       final androidInfo = await DeviceInfoPlugin().androidInfo;
       _isPhysicDevice = androidInfo.isPhysicalDevice;
     } else if (Platform.isIOS) {
@@ -88,6 +91,10 @@ class HomeNotifier extends AppProvider {
   }
 
   _getNotificationPermission() async {
+    if (kIsWeb) {
+      _isGrantedNotificationPresmission = false;
+      return;
+    }
     _isGrantedNotificationPresmission =
         await NotificationHelper.isPermissionGranted();
     if (!_isGrantedNotificationPresmission) {
