@@ -1,37 +1,35 @@
-import 'package:absen_smkn1_punggelan/app/data/source/schedule_api_service.dart';
-import 'package:absen_smkn1_punggelan/app/module/entity/schedule.dart';
-import 'package:absen_smkn1_punggelan/app/module/repository/schedule_repository.dart';
-import 'package:absen_smkn1_punggelan/core/constant/constant.dart';
-import 'package:absen_smkn1_punggelan/core/helper/shared_preferences_helper.dart';
-import 'package:absen_smkn1_punggelan/core/network/data_state.dart';
+import 'package:dio/dio.dart';
+import 'package:absen_smkn1_punggelan/app/core/result/result.dart';
+import 'package:absen_smkn1_punggelan/app/data/model/schedule.dart';
+import 'package:absen_smkn1_punggelan/app/domain/repository/i_schedule_repository.dart';
+import 'package:absen_smkn1_punggelan/core/constant/api_constants.dart';
 
-class ScheduleRepositoryImpl extends ScheduleRepository {
-  final ScheduleApiService _scheduleApiService;
+class ScheduleRepository implements IScheduleRepository {
+  final Dio _dio;
 
-  ScheduleRepositoryImpl(this._scheduleApiService);
+  ScheduleRepository({Dio? dio}) : _dio = dio ?? Dio();
 
   @override
-  Future<DataState<ScheduleEntity?>> get() {
-    return handleResponse(
-      () => _scheduleApiService.get(),
-      (json) {
-        if (json != null) {
-          final data = ScheduleEntity.fromJson(json);
-          SharedPreferencesHelper.setString(
-              PREF_START_SHIFT, data.shift.startTime);
-          SharedPreferencesHelper.setString(PREF_END_SHIFT, data.shift.endTime);
-          return data;
-        } else
-          return null;
-      },
-    );
+  Future<Result<List<Schedule>>> getSchedules() async {
+    try {
+      final response = await _dio.get('${ApiConstants.baseUrl}/api/schedules');
+      
+      final List<dynamic> data = response.data['data'];
+      final schedules = data.map((json) => Schedule.fromJson(json)).toList();
+      
+      return DataSuccess(schedules);
+    } catch (e) {
+      return DataFailed(e.toString());
+    }
   }
 
   @override
-  Future<DataState> banned() {
-    return handleResponse(
-      () => _scheduleApiService.banned(),
-      (json) => null,
-    );
+  Future<Result<void>> banSchedule(String id) async {
+    try {
+      await _dio.post('${ApiConstants.baseUrl}/api/schedule/banned/$id');
+      return const DataSuccess(null);
+    } catch (e) {
+      return DataFailed(e.toString());
+    }
   }
 }

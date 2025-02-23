@@ -81,6 +81,8 @@ mixin _$Attendance {
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
+
+  /// Serializes this Attendance to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 }
 
@@ -100,6 +102,9 @@ class _$AttendanceCopyWithImpl<$Res, $Val extends Attendance>
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
+
+  /// Create a copy of Attendance
+  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
@@ -122,6 +127,8 @@ class __$$AttendanceEntityImplCopyWithImpl<$Res>
       $Res Function(_$AttendanceEntityImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of Attendance
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -187,11 +194,13 @@ class _$AttendanceEntityImpl implements AttendanceEntity {
             (identical(other.date, date) || other.date == date));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, startTime, endTime, date);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of Attendance
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$AttendanceEntityImplCopyWith<_$AttendanceEntityImpl> get copyWith =>
@@ -294,7 +303,10 @@ abstract class AttendanceEntity implements Attendance {
   @JsonKey(name: 'end_time')
   String get endTime;
   String? get date;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of Attendance
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$AttendanceEntityImplCopyWith<_$AttendanceEntityImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -317,6 +329,8 @@ class __$$AttendanceParamEntityImplCopyWithImpl<$Res>
       $Res Function(_$AttendanceParamEntityImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of Attendance
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -370,11 +384,13 @@ class _$AttendanceParamEntityImpl implements AttendanceParamEntity {
                 other.longitude == longitude));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, latitude, longitude);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of Attendance
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$AttendanceParamEntityImplCopyWith<_$AttendanceParamEntityImpl>
@@ -473,7 +489,10 @@ abstract class AttendanceParamEntity implements Attendance {
 
   double get latitude;
   double get longitude;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of Attendance
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$AttendanceParamEntityImplCopyWith<_$AttendanceParamEntityImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
@@ -497,6 +516,8 @@ class __$$AttendanceParamGetEntityImplCopyWithImpl<$Res>
       $Res Function(_$AttendanceParamGetEntityImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of Attendance
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -548,11 +569,13 @@ class _$AttendanceParamGetEntityImpl implements AttendanceParamGetEntity {
             (identical(other.year, year) || other.year == year));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, month, year);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of Attendance
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$AttendanceParamGetEntityImplCopyWith<_$AttendanceParamGetEntityImpl>
@@ -651,7 +674,10 @@ abstract class AttendanceParamGetEntity implements Attendance {
 
   int get month;
   int get year;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of Attendance
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$AttendanceParamGetEntityImplCopyWith<_$AttendanceParamGetEntityImpl>
       get copyWith => throw _privateConstructorUsedError;
 }

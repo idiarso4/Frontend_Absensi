@@ -1,30 +1,50 @@
-import 'package:absen_smkn1_punggelan/app/data/model/auth.dart';
-import 'package:absen_smkn1_punggelan/app/data/source/auth_api_service.dart';
-import 'package:absen_smkn1_punggelan/app/module/entity/auth.dart';
-import 'package:absen_smkn1_punggelan/app/module/repository/auth_repository.dart';
-import 'package:absen_smkn1_punggelan/core/constant/constant.dart';
-import 'package:absen_smkn1_punggelan/core/helper/shared_preferences_helper.dart';
-import 'package:absen_smkn1_punggelan/core/network/data_state.dart';
+import 'package:absen_smkn1_punggelan/app/core/result/result.dart';
+import 'package:absen_smkn1_punggelan/app/data/model/login_response.dart';
+import 'package:absen_smkn1_punggelan/app/domain/repository/i_auth_repository.dart';
+import 'package:absen_smkn1_punggelan/app/core/constants/preferences_keys.dart';
+import 'package:absen_smkn1_punggelan/app/core/constants/api_constants.dart';
+import 'package:absen_smkn1_punggelan/app/core/helper/shared_preferences_helper.dart';
+import 'package:dio/dio.dart';
 
-class AuthRepositoryImpl extends AuthRepository {
-  final AuthApiService _authApiService;
+class AuthRepository implements IAuthRepository {
+  final Dio _dio;
 
-  AuthRepositoryImpl(this._authApiService);
+  AuthRepository({Dio? dio}) : _dio = dio ?? Dio();
 
   @override
-  Future<DataState> login(AuthEntity param) {
-    return handleResponse(
-      () => _authApiService.login(body: param.toJson()),
-      (json) async {
-        final authModel = AuthModel.fromJson(json);
-        await SharedPreferencesHelper.setString(
-            PREF_AUTH, '${authModel.tokenType} ${authModel.accessToken}');
-        await SharedPreferencesHelper.setInt(PREF_ID, authModel.user.id);
-        await SharedPreferencesHelper.setString(PREF_NAME, authModel.user.name);
-        await SharedPreferencesHelper.setString(
-            PREF_EMAIL, authModel.user.email);
-        return null;
-      },
-    );
+  Future<Result<LoginResponse>> login(String username, String password) async {
+    try {
+      final response = await _dio.post(
+        '${ApiConstants.baseUrl}${ApiConstants.apiVersion}${ApiConstants.auth}${ApiConstants.login}',
+        data: {
+          'username': username,
+          'password': password,
+        },
+      );
+      
+      final loginResponse = LoginResponse.fromJson(response.data['data']);
+      
+      // Save user data to SharedPreferences
+      await SharedPreferencesHelper.setString(
+        PreferencesKeys.token,
+        '${loginResponse.tokenType} ${loginResponse.accessToken}'
+      );
+      await SharedPreferencesHelper.setInt(
+        PreferencesKeys.userId,
+        loginResponse.user.id
+      );
+      await SharedPreferencesHelper.setString(
+        PreferencesKeys.userName,
+        loginResponse.user.name
+      );
+      await SharedPreferencesHelper.setString(
+        PreferencesKeys.userEmail,
+        loginResponse.user.email
+      );
+
+      return DataSuccess(loginResponse);
+    } catch (e) {
+      return DataFailed(e.toString());
+    }
   }
 }
