@@ -28,10 +28,13 @@ import 'package:absen_smkn1_punggelan/core/network/app_interceptor.dart';
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/login/login_notifier.dart';
 
 final sl = GetIt.instance;
 
 Future<void> initDependency() async {
+  // Register LoginNotifier
+  sl.registerFactory(() => LoginNotifier());
   //dio
   Dio dio = Dio();
   dio.interceptors.add(AppInterceptor());

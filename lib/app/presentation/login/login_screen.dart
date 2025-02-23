@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:provider/provider.dart';
 import 'package:absen_smkn1_punggelan/app/presentation/home/home_screen.dart';
 import 'package:absen_smkn1_punggelan/app/presentation/login/login_notifier.dart';
-import 'package:absen_smkn1_punggelan/core/helper/global_helper.dart';
-import 'package:absen_smkn1_punggelan/core/widget/app_widget.dart';
-import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -27,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Form(
               key: _formKey,
               child: Column(
@@ -39,22 +38,22 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 100,
                     fit: BoxFit.contain,
                   ),
-                  SizedBox(height: 20),
-                  Text(
+                  const SizedBox(height: 20),
+                  const Text(
                     'Selamat datang kembali 👋',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(
+                  const Text(
                     'di PRESENSI SKANSAPUNG',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey[600],
+                      color: Colors.grey,
                     ),
                   ),
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                   Consumer<LoginNotifier>(
                     builder: (context, notifier, child) {
                       return Column(
@@ -62,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           TextFormField(
                             controller: notifier.emailController,
                             decoration: InputDecoration(
-                              prefixIcon: Icon(Icons.email, color: Color.fromRGBO(243, 154, 0, 0.988)),
+                              prefixIcon: const Icon(Icons.email, color: Color.fromRGBO(243, 154, 0, 0.988)),
                               hintText: 'Email Address',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -85,11 +84,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               return null;
                             },
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           TextFormField(
                             controller: notifier.passwordController,
                             decoration: InputDecoration(
-                              prefixIcon: Icon(Icons.lock, color: Color.fromRGBO(243, 154, 0, 0.988)),
+                              prefixIcon: const Icon(Icons.lock, color: Color.fromRGBO(243, 154, 0, 0.988)),
                               hintText: 'Password',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -99,13 +98,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               fillColor: Colors.white,
                               suffixIcon: IconButton(
                                 icon: Icon(
-                                  notifier.isShowPassword ? Icons.visibility_off : Icons.visibility,
-                                  color: Color.fromRGBO(243, 154, 0, 0.988),
+                                  notifier.isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                                  color: const Color.fromRGBO(243, 154, 0, 0.988),
                                 ),
                                 onPressed: () => notifier.togglePasswordVisibility(),
                               ),
                             ),
-                            obscureText: !notifier.isShowPassword,
+                            obscureText: !notifier.isPasswordVisible,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Mohon masukkan password';
@@ -117,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             alignment: Alignment.centerRight,
                             child: TextButton(
                               onPressed: () {},
-                              child: Text(
+                              child: const Text(
                                 'Lupa Password?',
                                 style: TextStyle(
                                   color: Color.fromRGBO(243, 154, 0, 0.988),
@@ -125,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
@@ -135,11 +134,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                       if (_formKey.currentState!.validate()) {
                                         final success = await notifier.login();
                                         if (success) {
-                                          Navigator.pushReplacementNamed(context, '/dashboard');
-                                        } else {
+                                          if (mounted) {
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => const HomeScreen(),
+                                              ),
+                                            );
+                                          }
+                                        } else if (mounted) {
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             SnackBar(
-                                              content: Text(notifier.errorMessage),
+                                              content: Text(notifier.error ?? 'Login gagal'),
                                               backgroundColor: Colors.red,
                                             ),
                                           );
@@ -147,52 +153,29 @@ class _LoginScreenState extends State<LoginScreen> {
                                       }
                                     },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Color.fromRGBO(243, 154, 0, 0.988),
-                                padding: EdgeInsets.symmetric(vertical: 16),
+                                backgroundColor: const Color.fromRGBO(243, 154, 0, 0.988),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
                               child: notifier.isLoading
-                                  ? CircularProgressIndicator(color: Colors.white)
-                                  : Text(
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      ),
+                                    )
+                                  : const Text(
                                       'Login',
                                       style: TextStyle(
-                                        color: Colors.white,
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                            ),
-                          ),
-                          if (notifier.errorMessage.isNotEmpty)
-                            Padding(
-                              padding: EdgeInsets.only(top: 16),
-                              child: Text(
-                                notifier.errorMessage,
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          SizedBox(height: 24),
-                          Text(
-                            'Atau masuk dengan akun sosial',
-                            style: TextStyle(color: Colors.grey[600]),
-                          ),
-                          SizedBox(height: 16),
-                          OutlinedButton.icon(
-                            onPressed: () {},
-                            icon: Image.asset(
-                              'assets/images/google_icon.png',
-                              width: 24,
-                              height: 24,
-                            ),
-                            label: Text('Masuk dengan Google'),
-                            style: OutlinedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                              side: BorderSide(color: Colors.grey[300]!),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
                             ),
                           ),
                         ],

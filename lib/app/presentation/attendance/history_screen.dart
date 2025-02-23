@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import 'package:absen_smkn1_punggelan/app/presentation/attendance/history_notifier.dart';
 import 'package:absen_smkn1_punggelan/app/presentation/widgets/base_screen.dart';
 
 class HistoryScreen extends BaseScreen<HistoryNotifier> {
-  const HistoryScreen({Key? key}) : super(title: 'Riwayat Absensi', key: key);
+  const HistoryScreen({super.key}) : super(title: 'Riwayat Absensi');
 
   @override
   Widget buildScreenContent(BuildContext context, HistoryNotifier notifier) {
@@ -20,7 +20,7 @@ class HistoryScreen extends BaseScreen<HistoryNotifier> {
 
   Widget _buildMonthSelector(HistoryNotifier notifier) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -35,7 +35,7 @@ class HistoryScreen extends BaseScreen<HistoryNotifier> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            icon: Icon(Icons.chevron_left),
+            icon: const Icon(Icons.chevron_left),
             onPressed: () {
               final newMonth = DateTime(
                 notifier.selectedMonth.year,
@@ -46,7 +46,7 @@ class HistoryScreen extends BaseScreen<HistoryNotifier> {
           ),
           Text(
             DateFormat('MMMM yyyy').format(notifier.selectedMonth),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -106,7 +106,7 @@ class HistoryScreen extends BaseScreen<HistoryNotifier> {
     }
 
     return ListView.builder(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       itemCount: notifier.records.length,
       itemBuilder: (context, index) {
         final record = notifier.records[index];
@@ -122,7 +122,7 @@ class HistoryScreen extends BaseScreen<HistoryNotifier> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

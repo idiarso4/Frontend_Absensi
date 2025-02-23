@@ -1,15 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:skansapung_presensi/app/presentation/attendance/schedule_notifier.dart';
-import 'package:skansapung_presensi/app/presentation/widgets/base_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import 'package:absen_smkn1_punggelan/app/data/model/schedule.dart';
+import 'package:absen_smkn1_punggelan/app/presentation/attendance/schedule_notifier.dart';
 
-class ScheduleScreen extends BaseScreen<ScheduleNotifier> {
-  const ScheduleScreen({Key? key}) : super(title: 'Jadwal Absensi', key: key);
+class ScheduleScreen extends StatelessWidget {
+  const ScheduleScreen({super.key});
 
   @override
-  Widget buildScreenContent(BuildContext context, ScheduleNotifier notifier) {
-    return RefreshIndicator(
-      onRefresh: () => notifier.loadSchedules(),
-      child: _buildScheduleList(notifier),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Jadwal Absensi'),
+        backgroundColor: const Color.fromRGBO(243, 154, 0, 0.988),
+      ),
+      body: Consumer<ScheduleNotifier>(
+        builder: (context, notifier, _) {
+          return RefreshIndicator(
+            onRefresh: () => notifier.loadSchedules(),
+            child: _buildScheduleList(notifier),
+          );
+        },
+      ),
     );
   }
 
@@ -25,15 +37,15 @@ class ScheduleScreen extends BaseScreen<ScheduleNotifier> {
           children: [
             Text(
               notifier.errorMessage,
-              style: TextStyle(color: Colors.red),
+              style: const TextStyle(color: Colors.red),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => notifier.loadSchedules(),
-              child: Text('Retry'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromRGBO(243, 154, 0, 0.988),
+                backgroundColor: const Color.fromRGBO(243, 154, 0, 0.988),
               ),
+              child: const Text('Retry'),
             ),
           ],
         ),
@@ -41,7 +53,7 @@ class ScheduleScreen extends BaseScreen<ScheduleNotifier> {
     }
 
     return ListView.builder(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       itemCount: notifier.schedules.length + 1, // +1 for the legend
       itemBuilder: (context, index) {
         if (index == 0) {
@@ -54,150 +66,199 @@ class ScheduleScreen extends BaseScreen<ScheduleNotifier> {
   }
 
   Widget _buildLegend() {
-    return Card(
-      margin: EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Keterangan Jadwal',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          Text(
+            'Status:',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
             ),
-            SizedBox(height: 12),
-            Row(
-              children: [
-                Icon(
-                  Icons.circle,
-                  size: 12,
-                  color: Colors.green,
-                ),
-                SizedBox(width: 8),
-                Text('Aktif'),
-                SizedBox(width: 24),
-                Icon(
-                  Icons.circle,
-                  size: 12,
-                  color: Colors.grey,
-                ),
-                SizedBox(width: 8),
-                Text('Tidak Aktif'),
-              ],
-            ),
-          ],
-        ),
+          ),
+          SizedBox(height: 8),
+          _StatusLegendItem(
+            color: Colors.green,
+            text: 'Sudah Absen',
+          ),
+          SizedBox(height: 4),
+          _StatusLegendItem(
+            color: Colors.orange,
+            text: 'Belum Absen',
+          ),
+          SizedBox(height: 4),
+          _StatusLegendItem(
+            color: Colors.red,
+            text: 'Tidak Absen',
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildScheduleCard(Schedule schedule) {
-    return Card(
-      margin: EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(
+    final Color statusColor = _getStatusColor(schedule.status);
+    
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: schedule.isActive ? Colors.green : Colors.grey,
-            width: 2,
+        border: Border.all(color: statusColor, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 6,
+            offset: const Offset(0, 3),
           ),
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    schedule.day,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: schedule.isActive ? Colors.green : Colors.grey,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      schedule.isActive ? 'Aktif' : 'Tidak Aktif',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
+              Text(
+                _formatDate(schedule.date),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              SizedBox(height: 12),
-              if (schedule.isActive) ...[
-                _buildTimeRow(
-                  'Jam Masuk',
-                  notifier.formatTime(schedule.checkIn),
-                  Icons.login,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
                 ),
-                SizedBox(height: 8),
-                _buildTimeRow(
-                  'Jam Pulang',
-                  notifier.formatTime(schedule.checkOut),
-                  Icons.logout,
+                decoration: BoxDecoration(
+                  color: statusColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              ] else
-                Text(
-                  'Libur',
+                child: Text(
+                  _getStatusText(schedule.status),
                   style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                    fontStyle: FontStyle.italic,
+                    color: statusColor,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
+              ),
             ],
           ),
-        ),
+          const SizedBox(height: 12),
+          _buildTimeRow('Masuk', schedule.checkIn),
+          const SizedBox(height: 8),
+          _buildTimeRow('Pulang', schedule.checkOut),
+        ],
       ),
     );
   }
 
-  Widget _buildTimeRow(String label, String time, IconData icon) {
+  Widget _buildTimeRow(String label, String time) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 20,
-          color: const Color.fromRGBO(243, 154, 0, 0.988),
+        SizedBox(
+          width: 60,
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: Colors.grey,
+            ),
+          ),
         ),
-        const SizedBox(width: 8),
-        Text(
-          label,
+        const Text(
+          ':',
           style: TextStyle(
-            color: Colors.grey[600],
+            color: Colors.grey,
           ),
         ),
         const SizedBox(width: 8),
         Text(
-          time,
+          _formatTime(time),
           style: const TextStyle(
-            fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
         ),
+      ],
+    );
+  }
+
+  String _formatDate(String date) {
+    final DateTime dateTime = DateTime.parse(date);
+    return DateFormat('EEEE, d MMMM y', 'id_ID').format(dateTime);
+  }
+
+  String _formatTime(String time) {
+    return DateFormat('HH:mm').format(DateTime.parse('2024-01-01 $time'));
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'done':
+        return Colors.green;
+      case 'pending':
+        return Colors.orange;
+      case 'missed':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String _getStatusText(String status) {
+    switch (status.toLowerCase()) {
+      case 'done':
+        return 'Sudah Absen';
+      case 'pending':
+        return 'Belum Absen';
+      case 'missed':
+        return 'Tidak Absen';
+      default:
+        return 'Unknown';
+    }
+  }
+}
+
+class _StatusLegendItem extends StatelessWidget {
+  final Color color;
+  final String text;
+
+  const _StatusLegendItem({
+    required this.color,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(text),
       ],
     );
   }

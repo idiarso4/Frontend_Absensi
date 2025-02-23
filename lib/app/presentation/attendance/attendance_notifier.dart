@@ -14,31 +14,29 @@ class AttendanceNotifier extends ChangeNotifier {
   final double _targetLatitude = -7.4171; // Latitude sekolah
   final double _targetLongitude = 109.6778; // Longitude sekolah
   final int _allowedRadius = 100; // Radius dalam meter
-
+  String? _attendanceStatus;
+  
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
   File? get selectedImage => _selectedImage;
-  String? _attendanceStatus;
-  String? get attendanceStatus => _attendanceStatus;
   Position? get currentLocation => _currentPosition;
   bool get isWithinRange => _isWithinRange;
-
+  String? get attendanceStatus => _attendanceStatus;
+  
   void clearPhoto() {
     _selectedImage = null;
     notifyListeners();
   }
-
+  
   Future<void> takePhoto(BuildContext context) async {
     try {
-      // Buka camera screen
-      final String? imagePath = await Navigator.push(
+      final String? imagePath = await Navigator.push<String>(
         context,
         MaterialPageRoute(
           builder: (context) => const CameraScreen(),
         ),
       );
-
-      // Jika berhasil mengambil foto
+  
       if (imagePath != null) {
         _selectedImage = File(imagePath);
         _errorMessage = '';
@@ -49,26 +47,41 @@ class AttendanceNotifier extends ChangeNotifier {
       notifyListeners();
     }
   }
-
+  
   Future<void> getCurrentLocation() async {
-    _isLoading = true;
-    _errorMessage = '';
-    notifyListeners();
-
     try {
-      await checkLocation();
-      if (_currentPosition != null) {
-        _isWithinRange = _checkIfWithinRange();
-        if (!_isWithinRange) {
-          _errorMessage = 'Anda berada di luar area yang diizinkan';
+      _isLoading = true;
+      notifyListeners();
+  
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          _errorMessage = 'Izin lokasi ditolak';
+          _isLoading = false;
+          notifyListeners();
+          return;
         }
       }
+  
+      if (permission == LocationPermission.deniedForever) {
+        _errorMessage = 'Izin lokasi ditolak secara permanen';
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+  
+      _currentPosition = await Geolocator.getCurrentPosition();
+      _isWithinRange = _checkIfWithinRange();
+      _errorMessage = '';
+    } catch (e) {
+      _errorMessage = 'Gagal mendapatkan lokasi: ${e.toString()}';
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
-
+  
   bool _checkIfWithinRange() {
     if (_currentPosition == null) return false;
     
@@ -76,34 +89,28 @@ class AttendanceNotifier extends ChangeNotifier {
       _currentPosition!.latitude,
       _currentPosition!.longitude,
       _targetLatitude,
-      _targetLongitude,
+      _targetLongitude
     );
     
     return distanceInMeters <= _allowedRadius;
   }
-
+  
   Future<void> submitAttendance(BuildContext context) async {
-    if (_selectedImage == null) {
-      _errorMessage = 'Silakan ambil foto terlebih dahulu';
+    if (_selectedImage == null || _currentPosition == null) {
+      _errorMessage = 'Please take a photo and enable location';
       notifyListeners();
       return;
     }
-
-    if (_currentPosition == null) {
-      _errorMessage = 'Silakan aktifkan layanan lokasi';
-      notifyListeners();
-      return;
-    }
-
+  
     if (!_isWithinRange) {
       _errorMessage = 'Anda harus berada di area sekolah untuk melakukan absensi';
       notifyListeners();
       return;
     }
-
+  
     _isLoading = true;
     notifyListeners();
-
+  
     try {
       // TODO: Implement attendance submission to API
       await Future.delayed(Duration(seconds: 2)); // Simulate API call
@@ -128,7 +135,7 @@ class AttendanceNotifier extends ChangeNotifier {
       notifyListeners();
     }
   }
-
+  
   Future<void> checkLocation() async {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -137,26 +144,43 @@ class AttendanceNotifier extends ChangeNotifier {
         notifyListeners();
         return;
       }
-
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          _errorMessage = 'Izin lokasi ditolak';
+  
+      Future<void> getCurrentLocation() async {
+        try {
+          final LocationPermission permission = await Geolocator.checkPermission();
+          
+          if (permission == LocationPermission.denied) {
+            final LocationPermission requestedPermission = await Geolocator.requestPermission();
+            if (requestedPermission == LocationPermission.denied) {
+              _errorMessage = 'Location permission denied';
+              notifyListeners();
+              return;
+            }
+          }
+          
+          if (permission == LocationPermission.deniedForever) {
+            _errorMessage = 'Location permissions are permanently denied';
+            notifyListeners();
+            return;
+          }
+          
+          _isLoading = true;
           notifyListeners();
-          return;
+          
+          _currentPosition = await Geolocator.getCurrentPosition();
+          _isWithinRange = _checkIfWithinRange();
+          _errorMessage = '';
+        } catch (e) {
+          _errorMessage = 'Error getting location: ${e.toString()}';
+        } finally {
+          _isLoading = false;
+          notifyListeners();
         }
       }
-
-      if (permission == LocationPermission.deniedForever) {
-        _errorMessage = 'Izin lokasi ditolak secara permanen';
-        notifyListeners();
-        return;
+      _isWithinRange = _checkIfWithinRange();
+      if (!_isWithinRange) {
+        _errorMessage = 'Anda berada di luar area yang diizinkan';
       }
-
-      _currentPosition = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
       notifyListeners();
     } catch (e) {
       _errorMessage = 'Error mendapatkan lokasi: ${e.toString()}';

@@ -1,110 +1,101 @@
 import 'dart:io';
-
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart';
-import 'package:timezone/data/latest.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class NotificationHelper {
-  static FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
   static Future<void> configurateLocalTimeZone() async {
-    initializeTimeZones();
-    final String currentTimeZone = await FlutterTimezone.getLocalTimezone();
-    setLocalLocation(getLocation(currentTimeZone));
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+      tz.initializeTimeZones();
+      final String currentTimeZone = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(currentTimeZone));
+    }
   }
 
-  static initNotification() async {
+  static Future<void> initNotification() async {
     await configurateLocalTimeZone();
 
-    AndroidInitializationSettings androidSetting =
+    const AndroidInitializationSettings androidSetting =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    DarwinInitializationSettings iosSetting = DarwinInitializationSettings(
-        requestSoundPermission: true,
-        requestBadgePermission: true,
-        requestAlertPermission: true);
-    InitializationSettings setting =
+    const DarwinInitializationSettings iosSetting = DarwinInitializationSettings(
+      requestSoundPermission: true,
+      requestBadgePermission: true,
+      requestAlertPermission: true,
+    );
+
+    const InitializationSettings settings =
         InitializationSettings(android: androidSetting, iOS: iosSetting);
-    await flutterLocalNotificationsPlugin.initialize(setting);
+
+    await flutterLocalNotificationsPlugin.initialize(settings);
+
+    if (Platform.isAndroid) {
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestPermission();
+    }
   }
 
-  static TZDateTime convertTime(
-      int year, int month, int day, int hour, int minutes) {
-    return TZDateTime(local, year, month, day, hour, minutes);
+  static tz.TZDateTime _convertTime(DateTime dateTime) {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduleDate = tz.TZDateTime(
+      tz.local,
+      dateTime.year,
+      dateTime.month,
+      dateTime.day,
+      dateTime.hour,
+      dateTime.minute,
+    );
+
+    if (scheduleDate.isBefore(now)) {
+      scheduleDate = scheduleDate.add(const Duration(days: 1));
+    }
+
+    return scheduleDate;
   }
 
-  static scheduleNotification(
-      {required int id,
-      required String title,
-      required String body,
-      required int hour,
-      required int minutes}) async {
-    final now = DateTime.now();
-    await flutterLocalNotificationsPlugin.zonedSchedule(
+  static Future<void> scheduleNotification({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime scheduledTime,
+  }) async {
+    try {
+      await flutterLocalNotificationsPlugin.zonedSchedule(
         id,
         title,
         body,
-        convertTime(now.year, now.month, now.day, hour, minutes),
-        NotificationDetails(
-            android: AndroidNotificationDetails('1', 'absen_smkn1_punggelan',
-                importance: Importance.max, priority: Priority.high),
-            iOS: DarwinNotificationDetails()),
+        _convertTime(scheduledTime),
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'attendance_channel',
+            'Attendance Notifications',
+            channelDescription: 'Notifications for attendance schedule',
+            importance: Importance.max,
+            priority: Priority.high,
+          ),
+          iOS: DarwinNotificationDetails(),
+        ),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time);
+      );
+    } catch (e) {
+      print('Error scheduling notification: $e');
+    }
   }
 
-  static cancelAll() async {
+  static Future<void> cancelNotification(int id) async {
+    await flutterLocalNotificationsPlugin.cancel(id);
+  }
+
+  static Future<void> cancelAllNotifications() async {
     await flutterLocalNotificationsPlugin.cancelAll();
-  }
-
-  static Future<bool> requestPermission() async {
-    bool isGranted = false;
-    if (Platform.isIOS) {
-      isGranted = await flutterLocalNotificationsPlugin
-              .resolvePlatformSpecificImplementation<
-                  IOSFlutterLocalNotificationsPlugin>()
-              ?.requestPermissions(alert: true, sound: true, badge: true) ??
-          false;
-    } else if (Platform.isAndroid) {
-      final AndroidFlutterLocalNotificationsPlugin?
-          androidFlutterLocalNotificationsPlugin =
-          flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>();
-
-      isGranted = await androidFlutterLocalNotificationsPlugin
-              ?.requestNotificationsPermission() ??
-          false;
-    }
-
-    return isGranted;
-  }
-
-  static Future<bool> isPermissionGranted() async {
-    if (kIsWeb) {
-      // Web platform doesn't support local notifications yet
-      return false;
-    }
-    
-    bool isGranted = false;
-    if (Platform.isIOS) {
-      final permission = await flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()
-          ?.checkPermissions();
-
-      isGranted = permission?.isEnabled ?? false;
-    } else if (Platform.isAndroid) {
-      isGranted = await flutterLocalNotificationsPlugin
-              .resolvePlatformSpecificImplementation<
-                  AndroidFlutterLocalNotificationsPlugin>()
-              ?.areNotificationsEnabled() ??
-          false;
-    }
-
-    return isGranted;
   }
 }

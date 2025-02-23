@@ -397,7 +397,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         radius: 50,
                         backgroundColor: Colors.grey[200],
                         backgroundImage: provider.profilePicture != null
-                            ? FileImage(provider.profilePicture!)
+                            ? NetworkImage(provider.profilePicture!)
                             : null,
                         child: provider.profilePicture == null
                             ? const Icon(Icons.person, size: 50)

@@ -1,47 +1,51 @@
 import 'package:flutter/material.dart';
-import 'package:absen_smkn1_punggelan/core/helper/shared_preferences_helper.dart';
-import 'package:absen_smkn1_punggelan/core/provider/app_provider.dart';
 import 'package:dio/dio.dart';
 import 'dart:io';
+import 'package:absen_smkn1_punggelan/core/constant/api_constants.dart';
+import 'package:absen_smkn1_punggelan/core/helper/shared_preferences_helper.dart';
 
-class ProfileNotifier extends AppProvider {
-  final String baseUrl = 'https://app.sjasmkn1punggelan.org/api';
-  final Dio _dio = Dio();
-  
+class ProfileNotifier extends ChangeNotifier {
+  final _dio = Dio();
+  bool _isLoading = false;
+  bool _canUpdateProfile = false;
+  String? _profilePicture;
   String _name = '';
-  String _role = '';
   String _email = '';
   String _phone = '';
+  String _role = '';
   String _nip = '';
   String _address = '';
-  String? _profilePicture;
-  bool _canUpdateProfile = false;
-  bool _isLoading = false;
 
+  bool get isLoading => _isLoading;
+  bool get canUpdateProfile => _canUpdateProfile;
+  String? get profilePicture => _profilePicture;
   String get name => _name;
-  String get role => _role;
   String get email => _email;
   String get phone => _phone;
+  String get role => _role;
   String get nip => _nip;
   String get address => _address;
-  String? get profilePicture => _profilePicture;
-  bool get canUpdateProfile => _canUpdateProfile;
-  bool get isLoading => _isLoading;
 
-  ProfileNotifier() {
-    init();
+  void showLoading() {
+    _isLoading = true;
+    notifyListeners();
   }
 
-  @override
-  Future<void> init() async {
+  void hideLoading() {
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<String?> _getToken() async {
+    return await SharedPreferencesHelper.getString('token');
+  }
+
+  void _showSuccessMessage(String message) {
+    // This will be handled by the UI
+  }
+
+  Future<void> initializeProfile() async {
     try {
-      _role = await SharedPreferencesHelper.getRole() ?? 'Siswa';
-      _email = await SharedPreferencesHelper.getEmail() ?? 'user@example.com';
-      _phone = await SharedPreferencesHelper.getPhone() ?? '-';
-      _nip = await SharedPreferencesHelper.getNip() ?? '-';
-      _address = await SharedPreferencesHelper.getAddress() ?? '-';
-      _name = await SharedPreferencesHelper.getString('name') ?? 'User';
-      _profilePicture = await SharedPreferencesHelper.getString('profile_picture');
       await checkProfileUpdatePermission();
       notifyListeners();
     } catch (e) {
@@ -69,121 +73,86 @@ class ProfileNotifier extends AppProvider {
     notifyListeners();
   }
 
-  Future<void> deleteProfilePicture(BuildContext context) async {
+  Future<void> uploadProfilePicture(BuildContext context, File file) async {
     try {
-      if (!_canUpdateProfile) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Maaf, saat ini Anda tidak diizinkan untuk mengubah profil'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-        return;
-      }
+      _isLoading = true;
+      notifyListeners();
 
-      showLoading();
-      final token = await SharedPreferencesHelper.getString('token');
-      
-      if (token == null) {
-        throw Exception('Authentication token not found');
-      }
-      
-      final response = await _dio.delete(
-        '$baseUrl/profile/delete-picture',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
+      final dio = Dio();
+      dio.options.headers['Authorization'] = 'Bearer ${await _getToken()}';
+
+      final formData = FormData.fromMap({
+        'photo': await MultipartFile.fromFile(file.path),
+      });
+
+      final response = await dio.post(
+        '${ApiConstants.baseUrl}/api/profile/upload-photo',
+        data: formData,
       );
 
       if (response.statusCode == 200) {
-        await SharedPreferencesHelper.setString('profile_picture', '');
-        _profilePicture = null;
-        notifyListeners();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Foto profil berhasil dihapus'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      } else {
-        throw Exception('Failed to delete profile picture: ${response.statusMessage}');
+        _profilePicture = response.data['data']['photo_url'];
+        _showSuccessMessage('Foto profil berhasil diperbarui');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal menghapus foto profil: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      debugPrint('Error uploading profile picture: $e');
+      rethrow;
     } finally {
-      hideLoading();
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
-  Future<void> uploadProfilePicture(BuildContext context, File imageFile) async {
+  Future<void> deleteProfilePicture(BuildContext context) async {
     try {
-      if (!_canUpdateProfile) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Maaf, saat ini Anda tidak diizinkan untuk mengubah profil'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-        return;
-      }
+      _isLoading = true;
+      notifyListeners();
 
-      showLoading();
-      final token = await SharedPreferencesHelper.getString('token');
-      
-      if (token == null) {
-        throw Exception('Authentication token not found');
-      }
-      
-      final formData = FormData.fromMap({
-        'profile_picture': await MultipartFile.fromFile(
-          imageFile.path,
-          filename: 'profile_picture.jpg',
-        ),
-      });
+      final dio = Dio();
+      dio.options.headers['Authorization'] = 'Bearer ${await _getToken()}';
 
-      final response = await _dio.post(
-        '$baseUrl/profile/update-picture',
-        data: formData,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'multipart/form-data',
-          },
-        ),
+      final response = await dio.delete(
+        '${ApiConstants.baseUrl}/api/profile/delete-photo',
       );
 
       if (response.statusCode == 200) {
-        final newProfilePicture = response.data['data']['profile_picture_url'];
-        await SharedPreferencesHelper.setString('profile_picture', newProfilePicture);
-        _profilePicture = newProfilePicture;
-        notifyListeners();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Foto profil berhasil diperbarui'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      } else {
-        throw Exception('Failed to upload profile picture: ${response.statusMessage}');
+        _profilePicture = null;
+        _showSuccessMessage('Foto profil berhasil dihapus');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal mengupload foto profil: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      debugPrint('Error deleting profile picture: $e');
+      rethrow;
     } finally {
-      hideLoading();
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> changePassword(BuildContext context, String currentPassword, String newPassword) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final dio = Dio();
+      dio.options.headers['Authorization'] = 'Bearer ${await _getToken()}';
+
+      final response = await dio.post(
+        '${ApiConstants.baseUrl}/api/profile/change-password',
+        data: {
+          'current_password': currentPassword,
+          'new_password': newPassword,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        _showSuccessMessage('Password berhasil diubah');
+      }
+    } catch (e) {
+      debugPrint('Error changing password: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -216,91 +185,15 @@ class ProfileNotifier extends AppProvider {
         data: formData,
       );
 
-      if (response.data['success']) {
-        final userData = response.data['data']['user'];
-        _name = userData['name'];
-        _email = userData['email'];
-        _phone = userData['phone'];
-        if (userData['photo_url'] != null) {
-          _profilePicture = userData['photo_url'];
-        }
-        
+      if (response.statusCode == 200) {
         _showSuccessMessage('Profil berhasil diperbarui');
-      } else {
-        throw Exception(response.data['message']);
-      }
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 429) {
-        throw Exception('Terlalu banyak permintaan. Silakan coba lagi nanti.');
-      } else if (e.response?.data != null) {
-        throw Exception(e.response?.data['message'] ?? 'Gagal memperbarui profil');
-      } else {
-        throw Exception('Terjadi kesalahan. Silakan coba lagi.');
       }
     } catch (e) {
-      throw Exception(e.toString());
+      debugPrint('Error updating profile: $e');
+      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
-    }
-  }
-
-  Future<void> changePassword(
-    BuildContext context,
-    String currentPassword,
-    String newPassword,
-  ) async {
-    try {
-      if (!_canUpdateProfile) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Maaf, saat ini Anda tidak diizinkan untuk mengubah password'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-        return;
-      }
-
-      showLoading();
-      final token = await SharedPreferencesHelper.getString('token');
-      
-      if (token == null) {
-        throw Exception('Authentication token not found');
-      }
-      
-      final response = await _dio.post(
-        '$baseUrl/profile/change-password',
-        data: {
-          'current_password': currentPassword,
-          'new_password': newPassword,
-          'new_password_confirmation': newPassword,
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Password berhasil diubah'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      } else {
-        throw Exception('Failed to change password: ${response.statusMessage}');
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal mengubah password: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      hideLoading();
     }
   }
 }

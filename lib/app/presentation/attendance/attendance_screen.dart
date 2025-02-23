@@ -8,21 +8,19 @@ class AttendanceScreen extends BaseScreen<AttendanceNotifier> {
   @override
   Widget buildScreenContent(BuildContext context, AttendanceNotifier notifier) {
     return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildStatusCard(notifier),
-            const SizedBox(height: 20),
-            _buildPhotoSection(notifier, context),
-            const SizedBox(height: 20),
-            _buildLocationSection(notifier),
-            const SizedBox(height: 20),
-            _buildSubmitButton(context, notifier),
-            const SizedBox(height: 20),
-          ],
-        ),
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildStatusCard(notifier),
+          const SizedBox(height: 20),
+          _buildPhotoSection(notifier, context),
+          const SizedBox(height: 20),
+          _buildLocationSection(notifier),
+          const SizedBox(height: 20),
+          _buildSubmitButton(context, notifier),
+          const SizedBox(height: 20),
+        ],
       ),
     );
   }
